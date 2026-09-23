@@ -19,9 +19,9 @@ Polynomial coefficients use floating-point values and are stored in descending p
 
 ## Acceptance Criteria
 
-- [ ] Polynomials can be created from parsed coefficient vectors.
-- [ ] Required polynomial operations produce correctly ordered coefficient vectors.
-- [ ] Calculations use floating-point values and display precision can be limited to two decimals.
+- [x] Polynomials can be created from parsed coefficient vectors.
+- [x] Required polynomial operations produce correctly ordered coefficient vectors.
+- [x] Calculations use floating-point values and display precision can be limited to two decimals.
 
 ## Tests
 
@@ -29,7 +29,7 @@ Test polynomial creation and each implemented operation with representative coef
 
 ## Definition of Done
 
-The polynomial model and focused tests are implemented and pass.
+Done. The polynomial model and focused tests are implemented and pass.
 
 ## Dependencies
 

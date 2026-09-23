@@ -37,6 +37,7 @@
 
 #include "acutest.h"
 #include "cli_parser.hpp"
+#include "polynomial.hpp"
 
 /*===========================================================================*
  * Local Preprocessor #define Constants
@@ -135,6 +136,32 @@ void test_RejectNonFiniteAndIncompatibleVectors(void)
                                  errorMessage));
 }
 
+void test_PolynomialRepresentation(void)
+{
+    const std::vector<double> coefficients = {2.0, 3.0, 4.0};
+    const Polynomial polynomial(coefficients);
+
+    TEST_CHECK(polynomial.coefficients() == coefficients);
+}
+
+void test_PolynomialSum(void)
+{
+    const Polynomial first({2.0, 3.0, 4.0});
+    const Polynomial second({5.0, 6.0});
+    const Polynomial result = first + second;
+
+    TEST_CHECK(result.coefficients() == std::vector<double>({2.0, 8.0, 10.0}));
+}
+
+void test_PolynomialMultiplication(void)
+{
+    const Polynomial first({1.0, 2.0});
+    const Polynomial second({3.0, 4.0});
+    const Polynomial result = first * second;
+
+    TEST_CHECK(result.coefficients() == std::vector<double>({3.0, 10.0, 8.0}));
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -144,5 +171,8 @@ TEST_LIST = {
     { "Reject malformed vector", test_RejectMalformedVector },
     { "Reject non-finite and incompatible vectors",
       test_RejectNonFiniteAndIncompatibleVectors },
+        { "Polynomial representation", test_PolynomialRepresentation },
+        { "Polynomial sum", test_PolynomialSum },
+        { "Polynomial multiplication", test_PolynomialMultiplication },
     { NULL, NULL }
 };
