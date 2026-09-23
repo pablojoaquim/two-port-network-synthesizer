@@ -37,6 +37,7 @@
 #include <string>
 
 #include "acutest.h"
+#include "application_runner.hpp"
 #include "ascii_circuit.hpp"
 #include "cli_parser.hpp"
 #include "foster.hpp"
@@ -538,6 +539,53 @@ void test_CompleteWorkflowRendersIntermediateAndFinalOutput(void)
                std::string::npos);
 }
 
+void test_ApplicationRunnerStartsCompleteWorkflow(void)
+{
+    char argument0[] = "application";
+    char argument1[] = "[2,3]";
+    char argument2[] = "[1,3,2]";
+    char *arguments[] = {argument0, argument1, argument2};
+    std::istringstream input("0\n0\n");
+    std::ostringstream output;
+    std::ostringstream errors;
+
+    TEST_CHECK(runApplication(3, arguments, input, output, errors) == 0);
+    TEST_CHECK(output.str().find("Current impedance:") != std::string::npos);
+    TEST_CHECK(output.str().find("Available removals:") != std::string::npos);
+    TEST_CHECK(output.str().find("SYNTHESIS COMPLETE") != std::string::npos);
+    TEST_CHECK(errors.str().empty());
+}
+
+void test_ApplicationRunnerSupportsPartialWorkflow(void)
+{
+    char argument0[] = "application";
+    char argument1[] = "[1]";
+    char argument2[] = "[1,1]";
+    char *arguments[] = {argument0, argument1, argument2};
+    std::istringstream input("q\n");
+    std::ostringstream output;
+    std::ostringstream errors;
+
+    TEST_CHECK(runApplication(3, arguments, input, output, errors) == 0);
+    TEST_CHECK(output.str().find("PARTIAL SYNTHESIS") != std::string::npos);
+    TEST_CHECK(errors.str().empty());
+}
+
+void test_ApplicationRunnerRejectsInvalidInputBeforeSynthesis(void)
+{
+    char argument0[] = "application";
+    char argument1[] = "[1]";
+    char argument2[] = "[0,0]";
+    char *arguments[] = {argument0, argument1, argument2};
+    std::istringstream input("q\n");
+    std::ostringstream output;
+    std::ostringstream errors;
+
+    TEST_CHECK(runApplication(3, arguments, input, output, errors) == 1);
+    TEST_CHECK(output.str().empty());
+    TEST_CHECK(errors.str().find("Error:") == 0U);
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -586,5 +634,11 @@ TEST_LIST = {
             test_AsciiCircuitRendersIntermediateAndFinalBranches },
         { "Complete workflow renders intermediate and final output",
             test_CompleteWorkflowRendersIntermediateAndFinalOutput },
+        { "Application runner starts complete workflow",
+            test_ApplicationRunnerStartsCompleteWorkflow },
+        { "Application runner supports partial workflow",
+            test_ApplicationRunnerSupportsPartialWorkflow },
+        { "Application runner rejects invalid input",
+            test_ApplicationRunnerRejectsInvalidInputBeforeSynthesis },
     { NULL, NULL }
 };

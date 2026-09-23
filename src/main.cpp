@@ -30,9 +30,7 @@
  * Header Files
  *===========================================================================*/
 #include <iostream>
-#include <string>
-
-#include "cli_parser.hpp"
+#include "application_runner.hpp"
 
 /*===========================================================================*
  * Local Preprocessor #define Constants
@@ -79,13 +77,5 @@ extern "C"
  *****************************************************************************/
 int main(int argc, char *argv[])
 {
-    ParsedInput input;
-    std::string errorMessage;
-    if (!parseCommandLine(argc, argv, input, errorMessage))
-    {
-        std::cerr << "Error: " << errorMessage << '\n';
-        return 1;
-    }
-
-    return 0;
+    return runApplication(argc, argv, std::cin, std::cout, std::cerr);
 }

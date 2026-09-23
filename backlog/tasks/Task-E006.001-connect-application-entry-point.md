@@ -24,10 +24,10 @@ Connect command-line parsing to the existing rational-function model and synthes
 
 ## Acceptance Criteria
 
-- [ ] Valid command-line input starts the synthesis workflow.
-- [ ] The initial impedance and available removal options are displayed by the executable.
-- [ ] Interactive input reaches the synthesis controller.
-- [ ] Invalid command-line input terminates before synthesis begins.
+- [x] Valid command-line input starts the synthesis workflow.
+- [x] The initial impedance and available removal options are displayed by the executable.
+- [x] Interactive input reaches the synthesis controller.
+- [x] Invalid command-line input terminates before synthesis begins.
 
 ## Tests
 
