@@ -19,9 +19,9 @@ The user selects an available removal at each step or enters `q` to finish inter
 
 ## Acceptance Criteria
 
-- [ ] A valid selection is returned to the controller.
-- [ ] An invalid selection causes a reprompt and preserves state.
-- [ ] `q` ends interaction and marks partial synthesis.
+- [x] A valid selection is returned to the controller.
+- [x] An invalid selection causes a reprompt and preserves state.
+- [x] `q` ends interaction and marks partial synthesis.
 
 ## Tests
 

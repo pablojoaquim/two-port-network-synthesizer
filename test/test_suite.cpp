@@ -33,6 +33,7 @@
  *===========================================================================*/
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <string>
 
 #include "acutest.h"
@@ -41,6 +42,7 @@
 #include "polynomial.hpp"
 #include "pole_analysis.hpp"
 #include "rational_function.hpp"
+#include "selection.hpp"
 #include "synthesis_state.hpp"
 #include "total_removal.hpp"
 
@@ -350,6 +352,63 @@ void test_SynthesisStateRecordsMultipleRemovalsInOrder(void)
     TEST_CHECK(state.isPartial());
 }
 
+void test_SelectionReturnsValidOption(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, 1.0}));
+    SynthesisState state(rationalFunction);
+    const std::vector<RemovalOption> options =
+        identifyRemovalOptions(rationalFunction);
+    std::istringstream input("0\n");
+    std::ostringstream output;
+
+    const SelectionResult result =
+        handleSelection(input, output, options, state);
+
+    TEST_CHECK(result.status == SelectionStatus::Selected);
+    TEST_CHECK(result.optionIndex == 0U);
+    TEST_CHECK(!state.isPartial());
+    TEST_CHECK(output.str().empty());
+}
+
+void test_SelectionRepromptsWithoutChangingState(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, 1.0}));
+    SynthesisState state(rationalFunction);
+    const std::vector<RemovalOption> options =
+        identifyRemovalOptions(rationalFunction);
+    std::istringstream input("invalid\n4\n0\n");
+    std::ostringstream output;
+
+    const SelectionResult result =
+        handleSelection(input, output, options, state);
+
+    TEST_CHECK(result.status == SelectionStatus::Selected);
+    TEST_CHECK(output.str() ==
+               "Invalid selection. Try again: Invalid selection. Try again: ");
+    TEST_CHECK(state.steps().empty());
+    TEST_CHECK(!state.isPartial());
+}
+
+void test_SelectionQMarksPartialSynthesis(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, 1.0}));
+    SynthesisState state(rationalFunction);
+    const std::vector<RemovalOption> options =
+        identifyRemovalOptions(rationalFunction);
+    std::istringstream input("q\n");
+    std::ostringstream output;
+
+    const SelectionResult result =
+        handleSelection(input, output, options, state);
+
+    TEST_CHECK(result.status == SelectionStatus::Quit);
+    TEST_CHECK(state.isPartial());
+    TEST_CHECK(state.steps().empty());
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -379,5 +438,10 @@ TEST_LIST = {
         { "Synthesis state records removal", test_SynthesisStateRecordsRemoval },
         { "Synthesis state records multiple removals",
             test_SynthesisStateRecordsMultipleRemovalsInOrder },
+        { "Selection returns valid option", test_SelectionReturnsValidOption },
+        { "Selection reprompts invalid input",
+            test_SelectionRepromptsWithoutChangingState },
+        { "Selection q marks partial synthesis",
+            test_SelectionQMarksPartialSynthesis },
     { NULL, NULL }
 };
