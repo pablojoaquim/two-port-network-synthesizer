@@ -30,10 +30,12 @@ The system shall:
 7. Accept the user's removal selection or `q` to finish interactively.
 8. Validate a total removal by ensuring that the remaining network has no pole at the frequency of that removal.
 9. Use the Foster method to determine the removed component's type and value.
-10. Update the rational function and synthesis state after a removal.
-11. Display each synthesis step as terminal text and ASCII graphics.
-12. Stop when no poles remain or when the user enters `q`.
-13. Display the accumulated removal sequence, component values, and circuit representation when the process ends.
+10. If no valid Foster decomposition is available for the current state, report that no removal can be performed and stop synthesis.
+11. Update the rational function and synthesis state after a removal.
+12. Display each synthesis step as terminal text and ASCII graphics.
+13. Stop when no poles remain or when the user enters `q`.
+14. Label output produced after `q` as partial synthesis.
+15. Display the accumulated removal sequence, component values, and circuit representation when the process ends.
 
 ### Non-Functional Requirements
 
@@ -105,6 +107,8 @@ The first vector is the numerator and the second vector is the denominator. Coef
 
 At each synthesis step, the application displays the available removal options and accepts the user's selection. The user may enter `q` to finish interactively.
 
+Entering `q` intentionally terminates the session. The application displays the accumulated result and labels it as partial synthesis.
+
 ### Internal Interfaces
 
 - The rational-function model provides the current polynomials to synthesis analysis.
@@ -134,9 +138,12 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 - Coefficients are specified in descending powers of `s`.
 - Calculations use floating-point values with two decimal places sufficient for precision and display.
 - Coefficients must be finite floating-point values. `NaN`, positive infinity, and negative infinity are invalid input.
+- Finite coefficients may use any value representable by the implementation's floating-point type.
 - A valid total removal leaves no pole in the remaining network at the removal frequency.
 - Component type and value are obtained using the Foster method.
+- Invalid interactive selections produce an error message and reprompt without changing the synthesis state.
 - The application is terminal-based and uses ASCII diagrams.
+- Intermediate and final circuit diagrams use consistent ASCII labels for components, terminals, connections, and ground.
 - The implementation targets C and a WSL environment.
 - The implementation should avoid unnecessary external dependencies.
 
@@ -146,6 +153,8 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 - Prefer the C standard library for parsing, numerical handling, interaction, and output.
 - Use command-line arguments for the two input coefficient vectors.
 - Use terminal text and ASCII diagrams for visualization.
+- Use the repository Makefile as the build entry point.
+- Use the Acutest-based test suite through the Makefile test targets.
 
 ## 10. Testing Strategy
 
@@ -159,6 +168,7 @@ Testing shall cover the defined mathematical and workflow behavior, including:
 - Termination when no poles remain.
 - Termination when the user enters `q`.
 - Rendering of intermediate and final synthesis information.
+- Build with `make` or `make all` and execute tests with `make run-tests`.
 
 The exact test framework and build commands remain unspecified.
 
@@ -172,8 +182,9 @@ The initial implementation is complete when it can:
 - Identify valid removals according to the no-remaining-pole condition.
 - Obtain component types and values using the Foster method.
 - Stop when no poles remain or when `q` is entered.
+- Label a result terminated by `q` as partial synthesis.
 - Display the removal sequence, component values, and ASCII circuit representation.
-- Build and run in the intended C and WSL environment.
+- Build with the repository Makefile and run the Acutest suite with `make run-tests`.
 
 ## 12. Risks
 
@@ -181,12 +192,8 @@ The initial implementation is complete when it can:
 - The supported magnitude range for finite coefficients has not been defined.
 - The exact circuit and ASCII representations may evolve as synthesis capabilities are implemented.
 - The mathematical details required for all synthesis cases may require refinement during implementation.
+- The supported finite coefficient range is limited by the implementation's floating-point type.
 
 ## 13. Open Decisions
 
-- Supported magnitude range for finite coefficients.
-- Exact rules for invalid interactive selections.
-- Exact Foster decomposition procedures for all supported network cases.
-- Exact component and network topology notation in intermediate and final ASCII diagrams.
-- Whether an early `q` result is labeled as partial synthesis or complete output.
-- Exact build commands and test framework.
+No open decisions are currently recorded for the initial scope.
