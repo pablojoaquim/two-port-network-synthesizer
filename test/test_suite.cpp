@@ -45,6 +45,7 @@
 #include "selection.hpp"
 #include "synthesis_state.hpp"
 #include "synthesis_controller.hpp"
+#include "synthesis_renderer.hpp"
 #include "total_removal.hpp"
 
 /*===========================================================================*
@@ -464,6 +465,43 @@ void test_SynthesisLoopSupportsMultipleRemovals(void)
     TEST_CHECK(state.steps().size() == 2U);
 }
 
+void test_SynthesisRendererInitialState(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({2.0, 4.0}), Polynomial({1.0, 3.0, 2.0}));
+    const SynthesisState state(rationalFunction);
+    std::ostringstream output;
+
+    renderSynthesisInformation(output, state,
+                               identifyRemovalOptions(rationalFunction));
+
+    TEST_CHECK(output.str().find("Current impedance: 2.00s + 4.00 / ") !=
+               std::string::npos);
+    TEST_CHECK(output.str().find("Available removals:") != std::string::npos);
+    TEST_CHECK(output.str().find("Removal sequence:\nnone") !=
+               std::string::npos);
+}
+
+void test_SynthesisRendererAccumulatedState(void)
+{
+    const RationalFunction initial(
+        Polynomial({1.0}), Polynomial({1.0, 1.0}));
+    const RationalFunction remaining(Polynomial({1.0}), Polynomial({1.0}));
+    const RemovalOption removal = identifyRemovalOptions(initial)[0];
+    const FosterComponent component = {FosterComponentType::ParallelRC,
+                                      10.0, 0.10, 0.0};
+    SynthesisState state(initial);
+    state.recordRemoval(removal, component, remaining, "");
+    std::ostringstream output;
+
+    renderSynthesisInformation(output, state, std::vector<RemovalOption>());
+
+    TEST_CHECK(output.str().find("Removal sequence:\n0: pole -1.00") !=
+               std::string::npos);
+    TEST_CHECK(output.str().find("R=10.00 ohm, C=0.10 F") !=
+               std::string::npos);
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -505,5 +543,8 @@ TEST_LIST = {
             test_SynthesisLoopStopsWithoutFosterDecomposition },
         { "Synthesis loop supports multiple removals",
             test_SynthesisLoopSupportsMultipleRemovals },
+        { "Synthesis renderer initial state", test_SynthesisRendererInitialState },
+        { "Synthesis renderer accumulated state",
+            test_SynthesisRendererAccumulatedState },
     { NULL, NULL }
 };

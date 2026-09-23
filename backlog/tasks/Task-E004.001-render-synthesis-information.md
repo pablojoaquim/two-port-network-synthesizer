@@ -20,9 +20,9 @@ Each step must remain visible rather than treating synthesis as a black box.
 
 ## Acceptance Criteria
 
-- [ ] Current rational function and options are displayed before selection.
-- [ ] Each completed removal and component value is displayed.
-- [ ] Values use two decimal places.
+- [x] Current rational function and options are displayed before selection.
+- [x] Each completed removal and component value is displayed.
+- [x] Values use two decimal places.
 
 ## Tests
 

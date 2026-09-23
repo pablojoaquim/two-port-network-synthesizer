@@ -2,14 +2,11 @@
 
 #include <cmath>
 #include <complex>
-#include <iomanip>
-#include <limits>
-#include <sstream>
-#include <string>
 #include <vector>
 
 #include "foster.hpp"
 #include "selection.hpp"
+#include "synthesis_renderer.hpp"
 
 namespace
 {
@@ -106,24 +103,6 @@ RationalFunction removeComponent(const RationalFunction &rationalFunction,
                             Polynomial(reducedDenominator));
 }
 
-void displayState(std::ostream &output,
-                  const std::vector<RemovalOption> &options)
-{
-    output << "Current impedance: N(s)/D(s)\n";
-    output << "Available removals:\n";
-    for (const RemovalOption &option : options)
-    {
-        output << option.index << ": " << std::fixed << std::setprecision(2)
-               << option.pole.real();
-        if (std::abs(option.pole.imag()) > 1.0e-8)
-        {
-            output << (option.pole.imag() >= 0.0 ? " + j" : " - j")
-                   << std::abs(option.pole.imag());
-        }
-        output << "\n";
-    }
-    output << "Select a removal or q: ";
-}
 }
 
 SynthesisResult runSynthesis(std::istream &input,
@@ -140,7 +119,8 @@ SynthesisResult runSynthesis(std::istream &input,
             return SynthesisResult::Complete;
         }
 
-        displayState(output, options);
+        renderSynthesisInformation(output, state, options);
+        output << "Select a removal or q: ";
         const SelectionResult selection =
             handleSelection(input, output, options, state);
         if (selection.status == SelectionStatus::Quit)
