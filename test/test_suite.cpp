@@ -44,6 +44,7 @@
 #include "rational_function.hpp"
 #include "selection.hpp"
 #include "synthesis_state.hpp"
+#include "synthesis_controller.hpp"
 #include "total_removal.hpp"
 
 /*===========================================================================*
@@ -409,6 +410,60 @@ void test_SelectionQMarksPartialSynthesis(void)
     TEST_CHECK(state.steps().empty());
 }
 
+void test_SynthesisLoopCompletesAfterRemoval(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, 1.0}));
+    SynthesisState state(rationalFunction);
+    std::istringstream input("0\n");
+    std::ostringstream output;
+
+    TEST_CHECK(runSynthesis(input, output, state) == SynthesisResult::Complete);
+    TEST_CHECK(state.steps().size() == 1U);
+    TEST_CHECK(identifyRemovalOptions(state.currentRationalFunction()).empty());
+    TEST_CHECK(output.str().find("SYNTHESIS COMPLETE") != std::string::npos);
+}
+
+void test_SynthesisLoopStopsOnQ(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, 1.0}));
+    SynthesisState state(rationalFunction);
+    std::istringstream input("q\n");
+    std::ostringstream output;
+
+    TEST_CHECK(runSynthesis(input, output, state) == SynthesisResult::Partial);
+    TEST_CHECK(state.isPartial());
+    TEST_CHECK(output.str().find("PARTIAL SYNTHESIS") != std::string::npos);
+}
+
+void test_SynthesisLoopStopsWithoutFosterDecomposition(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, 1.0, 1.0}));
+    SynthesisState state(rationalFunction);
+    std::istringstream input("0\n");
+    std::ostringstream output;
+
+    TEST_CHECK(runSynthesis(input, output, state) ==
+               SynthesisResult::NoDecomposition);
+    TEST_CHECK(state.steps().empty());
+    TEST_CHECK(output.str().find("No valid Foster decomposition") !=
+               std::string::npos);
+}
+
+void test_SynthesisLoopSupportsMultipleRemovals(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({2.0, 3.0}), Polynomial({1.0, 3.0, 2.0}));
+    SynthesisState state(rationalFunction);
+    std::istringstream input("0\n0\n");
+    std::ostringstream output;
+
+    TEST_CHECK(runSynthesis(input, output, state) == SynthesisResult::Complete);
+    TEST_CHECK(state.steps().size() == 2U);
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -443,5 +498,12 @@ TEST_LIST = {
             test_SelectionRepromptsWithoutChangingState },
         { "Selection q marks partial synthesis",
             test_SelectionQMarksPartialSynthesis },
+        { "Synthesis loop completes after removal",
+            test_SynthesisLoopCompletesAfterRemoval },
+        { "Synthesis loop stops on q", test_SynthesisLoopStopsOnQ },
+        { "Synthesis loop stops without Foster decomposition",
+            test_SynthesisLoopStopsWithoutFosterDecomposition },
+        { "Synthesis loop supports multiple removals",
+            test_SynthesisLoopSupportsMultipleRemovals },
     { NULL, NULL }
 };

@@ -19,10 +19,10 @@ The synthesis process repeats until no poles remain, `q` is entered, or no valid
 
 ## Acceptance Criteria
 
-- [ ] A valid removal advances the workflow to the next state.
-- [ ] No remaining poles ends the workflow.
-- [ ] `q` ends the workflow as partial synthesis.
-- [ ] An unavailable Foster decomposition ends the workflow with a report.
+- [x] A valid removal advances the workflow to the next state.
+- [x] No remaining poles ends the workflow.
+- [x] `q` ends the workflow as partial synthesis.
+- [x] An unavailable Foster decomposition ends the workflow with a report.
 
 ## Tests
 
