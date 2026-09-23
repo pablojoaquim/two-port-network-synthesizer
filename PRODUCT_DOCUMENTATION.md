@@ -6,9 +6,9 @@ Initial product documentation for users and developers.
 
 Two-Port Network Synthesizer is a command-line tool for the step-by-step synthesis of linear time-invariant (LTI) two-port networks.
 
-The product accepts a rational-function representation, analyzes the network, and is intended to guide the user through successive total removals until a circuit is obtained. The synthesis process is intended to be visible in the terminal through text and ASCII diagrams.
+The product is specified to accept a rational-function representation, analyze the network, and guide the user through successive total removals until a circuit is obtained. The synthesis process is intended to be visible in the terminal through text and ASCII diagrams.
 
-The project is in early development. The current source implements command-line coefficient parsing, polynomial storage and operations, and rational-function state storage. The complete interactive synthesis workflow is not yet implemented.
+The project is in early development. The current source implements command-line coefficient parsing, polynomial storage and operations, and rational-function state storage. Only command-line validation is currently connected to the application entry point; the complete interactive synthesis workflow is not yet implemented.
 
 ## 2. Purpose and Scope
 
@@ -76,7 +76,7 @@ The complete mathematical procedure for pole analysis and Foster decomposition i
 
 The defined user workflow is:
 
-1. Invoke the application with numerator and denominator coefficient vectors.
+1. Invoke the application with two separate command-line arguments: a numerator vector and a denominator vector.
 2. The application validates the command-line arguments.
 3. The application displays the current rational function and synthesis state.
 4. The application displays available total-removal options.
@@ -89,7 +89,7 @@ Invalid interactive selection handling is defined as an error message followed b
 
 When `q` is entered, the result is labeled as partial synthesis.
 
-The complete workflow is not yet implemented in the current source. The current executable validates command-line input and then exits successfully for valid input.
+The complete workflow is not yet implemented in the current source. The current executable validates command-line input and then exits successfully with no additional output for valid input.
 
 ## 5. Terminal User Interface
 
@@ -153,12 +153,12 @@ Status: `TBD`; not implemented in the current source.
 
 ### Parsed Input
 
-The current command-line parser produces two coefficient vectors:
+The current command-line parser requires exactly two vector arguments after the application name and produces two coefficient vectors:
 
 - `numerator`: finite floating-point coefficients.
 - `denominator`: finite floating-point coefficients.
 
-The denominator must contain at least one non-zero coefficient. Missing, malformed, incompatible, and non-finite command-line input is rejected before synthesis begins.
+The denominator must contain at least one non-zero coefficient. Missing arguments, malformed vector syntax, empty values, values that cannot be converted to finite floating-point values, and an all-zero denominator are rejected before synthesis begins.
 
 ### Polynomial
 
@@ -189,11 +189,11 @@ The SDD defines a future state containing the removal sequence, extracted compon
 
 The current parser:
 
-1. Requires exactly two coefficient-vector arguments after the application name.
+1. Requires exactly two coefficient-vector arguments after the application name (`argc == 3`).
 2. Requires bracketed vector syntax.
 3. Splits values on commas.
 4. Converts values to floating-point numbers.
-5. Rejects empty, malformed, out-of-range, and non-finite values.
+5. Rejects empty, malformed, conversion-error, range-error, and non-finite values.
 6. Rejects a denominator containing only zero coefficients.
 
 #### Polynomial Addition
@@ -236,16 +236,16 @@ The test target builds and runs the Acutest-based suite.
 ### Application Input
 
 ```text
-application [numerator coefficients][denominator coefficients]
+application "[numerator coefficients]" "[denominator coefficients]"
 ```
 
 Example:
 
 ```text
-application [1,1,2][2,1,3]
+application "[1,1,2]" "[2,1,3]"
 ```
 
-The current implementation validates this input and exits. The interactive synthesis workflow is `TBD`.
+The current implementation validates these two separate arguments and exits. The interactive synthesis workflow is `TBD`.
 
 ## 10. Examples
 
@@ -268,7 +268,7 @@ $$
 ### Command-Line Invocation
 
 ```text
-application [1,1,2][2,1,3]
+application "[1,1,2]" "[2,1,3]"
 ```
 
 The first vector is the numerator and the second vector is the denominator.
