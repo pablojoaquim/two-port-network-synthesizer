@@ -19,9 +19,9 @@ Final output includes the removal sequence, component values, and circuit repres
 
 ## Acceptance Criteria
 
-- [ ] A removal is recorded in sequence order.
-- [ ] Its component type and value are recorded with it.
-- [ ] The current rational-function state can be retrieved after updates.
+- [x] A removal is recorded in sequence order.
+- [x] Its component type and value are recorded with it.
+- [x] The current rational-function state can be retrieved after updates.
 
 ## Tests
 

@@ -41,6 +41,7 @@
 #include "polynomial.hpp"
 #include "pole_analysis.hpp"
 #include "rational_function.hpp"
+#include "synthesis_state.hpp"
 #include "total_removal.hpp"
 
 /*===========================================================================*
@@ -293,6 +294,62 @@ void test_FosterExtractionRejectsUnsupportedPole(void)
     TEST_CHECK(!extractFosterComponent(rationalFunction, option, component));
 }
 
+void test_SynthesisStateInitialState(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, 1.0}));
+    const SynthesisState state(rationalFunction);
+
+    TEST_CHECK(state.currentRationalFunction().numerator().coefficients() ==
+               std::vector<double>({1.0}));
+    TEST_CHECK(state.steps().empty());
+    TEST_CHECK(state.circuitRepresentation().empty());
+    TEST_CHECK(!state.isPartial());
+}
+
+void test_SynthesisStateRecordsRemoval(void)
+{
+    const RationalFunction initial(
+        Polynomial({1.0}), Polynomial({1.0, 1.0}));
+    const RationalFunction remaining(Polynomial({1.0}), Polynomial({1.0}));
+    const RemovalOption removal = identifyRemovalOptions(initial)[0];
+    const FosterComponent component = {FosterComponentType::ParallelRC,
+                                      1.0, 1.0, 0.0};
+    SynthesisState state(initial);
+
+    state.recordRemoval(removal, component, remaining, "RC");
+
+    TEST_CHECK(state.steps().size() == 1U);
+    TEST_CHECK(state.steps()[0].removal.index == removal.index);
+    TEST_CHECK(state.steps()[0].component.type == FosterComponentType::ParallelRC);
+    TEST_CHECK(state.currentRationalFunction().denominator().coefficients() ==
+               std::vector<double>({1.0}));
+    TEST_CHECK(state.circuitRepresentation() == "RC");
+}
+
+void test_SynthesisStateRecordsMultipleRemovalsInOrder(void)
+{
+    const RationalFunction initial(
+        Polynomial({1.0}), Polynomial({1.0, 3.0, 2.0}));
+    const RationalFunction afterFirst(
+        Polynomial({1.0}), Polynomial({1.0, 1.0}));
+    const RationalFunction afterSecond(
+        Polynomial({1.0}), Polynomial({1.0}));
+    const std::vector<RemovalOption> removals = identifyRemovalOptions(initial);
+    const FosterComponent component = {FosterComponentType::ParallelRC,
+                                      1.0, 1.0, 0.0};
+    SynthesisState state(initial);
+
+    state.recordRemoval(removals[0], component, afterFirst, "first");
+    state.recordRemoval(removals[1], component, afterSecond, "second");
+
+    TEST_CHECK(state.steps().size() == 2U);
+    TEST_CHECK(state.steps()[0].removal.index == removals[0].index);
+    TEST_CHECK(state.steps()[1].removal.index == removals[1].index);
+    state.markPartial();
+    TEST_CHECK(state.isPartial());
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -318,5 +375,9 @@ TEST_LIST = {
             test_FosterExtractionForImaginaryPolePair },
         { "Foster extraction rejects unsupported pole",
             test_FosterExtractionRejectsUnsupportedPole },
+        { "Synthesis state initial state", test_SynthesisStateInitialState },
+        { "Synthesis state records removal", test_SynthesisStateRecordsRemoval },
+        { "Synthesis state records multiple removals",
+            test_SynthesisStateRecordsMultipleRemovalsInOrder },
     { NULL, NULL }
 };
