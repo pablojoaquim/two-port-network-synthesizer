@@ -19,9 +19,9 @@ The SDD identifies the repository Makefile and Acutest-based suite as the projec
 
 ## Acceptance Criteria
 
-- [ ] The application builds through the documented Makefile target.
-- [ ] The Acutest suite runs through `make run-tests`.
-- [ ] The result is recorded for the initial project baseline.
+- [x] The application builds through the documented Makefile target.
+- [x] The Acutest suite runs through `make run-tests`.
+- [x] The result is recorded for the initial project baseline.
 
 ## Tests
 
