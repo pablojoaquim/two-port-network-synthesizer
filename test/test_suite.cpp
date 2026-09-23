@@ -519,6 +519,25 @@ void test_AsciiCircuitRendersIntermediateAndFinalBranches(void)
                "IN o---[ RC1: R=10.00 ohm, C=0.10 F ]---[ LC1: L=1.00 H, C=1.00 F ]---o OUT");
 }
 
+void test_CompleteWorkflowRendersIntermediateAndFinalOutput(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({2.0, 3.0}), Polynomial({1.0, 3.0, 2.0}));
+    SynthesisState state(rationalFunction);
+    std::istringstream input("0\n0\n");
+    std::ostringstream output;
+
+    TEST_CHECK(runSynthesis(input, output, state) == SynthesisResult::Complete);
+    TEST_CHECK(state.steps().size() == 2U);
+    TEST_CHECK(output.str().find("Removal applied.") != std::string::npos);
+    TEST_CHECK(output.str().find("IN o---[ RC1:") != std::string::npos);
+    TEST_CHECK(output.str().find("IN o---[ RC1:") !=
+               output.str().rfind("IN o---[ RC1:"));
+    TEST_CHECK(output.str().find("SYNTHESIS COMPLETE") != std::string::npos);
+    TEST_CHECK(output.str().find("Circuit:\nIN o---[ RC1:") !=
+               std::string::npos);
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -565,5 +584,7 @@ TEST_LIST = {
             test_SynthesisRendererAccumulatedState },
         { "ASCII circuit intermediate and final branches",
             test_AsciiCircuitRendersIntermediateAndFinalBranches },
+        { "Complete workflow renders intermediate and final output",
+            test_CompleteWorkflowRendersIntermediateAndFinalOutput },
     { NULL, NULL }
 };

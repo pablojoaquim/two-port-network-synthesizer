@@ -19,9 +19,9 @@ The SDD requires tests for parsing, polynomial and rational operations, removal 
 
 ## Acceptance Criteria
 
-- [ ] Tests cover the required workflow behaviors.
-- [ ] Tests distinguish complete synthesis from `q` partial synthesis.
-- [ ] Tests pass through the repository test target.
+- [x] Tests cover the required workflow behaviors.
+- [x] Tests distinguish complete synthesis from `q` partial synthesis.
+- [x] Tests pass through the repository test target.
 
 ## Tests
 
