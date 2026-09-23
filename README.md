@@ -183,9 +183,24 @@ The architecture should allow additional synthesis methods and network represent
 
 ## Building
 
-The project is intended to be built from the WSL terminal using a standard C compiler.
+Build and run the application from WSL:
 
-The exact build procedure will be defined as part of the project implementation.
+```bash
+cd /mnt/c/jpablo/00_Projects/cyborg-training/two-port-network-synthesizer
+make all
+printf '0\n0\n' | ./build/main '[2,3]' '[1,3,2]'
+```
+
+The input represents the impedance
+
+$$
+Z(s) = \frac{2s+3}{s^2+3s+2}
+$$
+
+The two `0` lines select the available removals in sequence. The session
+prints the current impedance and available options, displays each removal and
+its circuit, and ends with `SYNTHESIS COMPLETE`. To stop interactively instead,
+replace the input with `printf 'q\n'`; the result is labeled `PARTIAL SYNTHESIS`.
 
 ## Development Methodology
 

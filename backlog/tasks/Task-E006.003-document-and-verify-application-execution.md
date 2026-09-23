@@ -23,10 +23,10 @@ The current README describes the synthesis workflow, but the built executable cu
 
 ## Acceptance Criteria
 
-- [ ] A user can follow the documented commands to start the application.
-- [ ] The example demonstrates an actual interactive synthesis session.
-- [ ] The documented output matches the executable behavior.
-- [ ] WSL build and execution are verified.
+- [x] A user can follow the documented commands to start the application.
+- [x] The example demonstrates an actual interactive synthesis session.
+- [x] The documented output matches the executable behavior.
+- [x] WSL build and execution are verified.
 
 ## Tests
 
