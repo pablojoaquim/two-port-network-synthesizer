@@ -37,6 +37,7 @@
 
 #include "acutest.h"
 #include "cli_parser.hpp"
+#include "foster.hpp"
 #include "polynomial.hpp"
 #include "pole_analysis.hpp"
 #include "rational_function.hpp"
@@ -256,6 +257,42 @@ void test_TotalRemovalValidation(void)
                std::vector<double>({1.0, -2.0, 1.0}));
 }
 
+void test_FosterExtractionForRealPole(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, 1.0}));
+    const RemovalOption option = identifyRemovalOptions(rationalFunction)[0];
+    FosterComponent component;
+
+    TEST_CHECK(extractFosterComponent(rationalFunction, option, component));
+    TEST_CHECK(component.type == FosterComponentType::ParallelRC);
+    TEST_CHECK(std::abs(component.resistance - 1.0) < 1.0e-10);
+    TEST_CHECK(std::abs(component.capacitance - 1.0) < 1.0e-10);
+}
+
+void test_FosterExtractionForImaginaryPolePair(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0, 0.0}), Polynomial({1.0, 0.0, 1.0}));
+    const RemovalOption option = identifyRemovalOptions(rationalFunction)[0];
+    FosterComponent component;
+
+    TEST_CHECK(extractFosterComponent(rationalFunction, option, component));
+    TEST_CHECK(component.type == FosterComponentType::ParallelLC);
+    TEST_CHECK(std::abs(component.capacitance - 1.0) < 1.0e-10);
+    TEST_CHECK(std::abs(component.inductance - 1.0) < 1.0e-10);
+}
+
+void test_FosterExtractionRejectsUnsupportedPole(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, 1.0, 1.0}));
+    const RemovalOption option = identifyRemovalOptions(rationalFunction)[0];
+    FosterComponent component;
+
+    TEST_CHECK(!extractFosterComponent(rationalFunction, option, component));
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -276,5 +313,10 @@ TEST_LIST = {
         { "Pole analysis with complex and repeated poles",
             test_PoleAnalysisWithComplexAndRepeatedPoles },
     { "Total removal validation", test_TotalRemovalValidation },
+        { "Foster extraction for real pole", test_FosterExtractionForRealPole },
+        { "Foster extraction for imaginary pole pair",
+            test_FosterExtractionForImaginaryPolePair },
+        { "Foster extraction rejects unsupported pole",
+            test_FosterExtractionRejectsUnsupportedPole },
     { NULL, NULL }
 };

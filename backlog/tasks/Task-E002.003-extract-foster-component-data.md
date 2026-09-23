@@ -19,9 +19,9 @@ The synthesis process records the component values produced by each total remova
 
 ## Acceptance Criteria
 
-- [ ] A valid removal returns a component type.
-- [ ] A valid removal returns a component value.
-- [ ] An unavailable decomposition is reported without producing component data.
+- [x] A valid removal returns a component type.
+- [x] A valid removal returns a component value.
+- [x] An unavailable decomposition is reported without producing component data.
 
 ## Tests
 
