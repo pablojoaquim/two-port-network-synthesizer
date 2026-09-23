@@ -19,9 +19,9 @@ The application presents synthesis steps and the final circuit graphically in th
 
 ## Acceptance Criteria
 
-- [ ] An intermediate circuit state can be rendered as ASCII.
-- [ ] A final circuit can be rendered as ASCII.
-- [ ] Labels and connection notation are consistent between intermediate and final output.
+- [x] An intermediate circuit state can be rendered as ASCII.
+- [x] A final circuit can be rendered as ASCII.
+- [x] Labels and connection notation are consistent between intermediate and final output.
 
 ## Tests
 

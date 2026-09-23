@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "foster.hpp"
+#include "ascii_circuit.hpp"
 #include "selection.hpp"
 #include "synthesis_renderer.hpp"
 
@@ -115,6 +116,7 @@ SynthesisResult runSynthesis(std::istream &input,
             identifyRemovalOptions(state.currentRationalFunction());
         if (options.empty())
         {
+            output << "Circuit:\n" << state.circuitRepresentation() << "\n";
             output << "SYNTHESIS COMPLETE\n";
             return SynthesisResult::Complete;
         }
@@ -140,7 +142,11 @@ SynthesisResult runSynthesis(std::istream &input,
 
         const RationalFunction updated = removeComponent(
             state.currentRationalFunction(), option, component);
-        state.recordRemoval(option, component, updated, "");
+        std::vector<SynthesisStep> updatedSteps = state.steps();
+        updatedSteps.push_back({option, component});
+        state.recordRemoval(option, component, updated,
+                            buildAsciiCircuit(updatedSteps));
+        output << "Circuit:\n" << state.circuitRepresentation() << "\n";
         output << "Removal applied.\n";
     }
 }

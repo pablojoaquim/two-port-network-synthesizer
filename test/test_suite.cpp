@@ -37,6 +37,7 @@
 #include <string>
 
 #include "acutest.h"
+#include "ascii_circuit.hpp"
 #include "cli_parser.hpp"
 #include "foster.hpp"
 #include "polynomial.hpp"
@@ -502,6 +503,22 @@ void test_SynthesisRendererAccumulatedState(void)
                std::string::npos);
 }
 
+void test_AsciiCircuitRendersIntermediateAndFinalBranches(void)
+{
+    const FosterComponent rc = {FosterComponentType::ParallelRC,
+                                10.0, 0.10, 0.0};
+    const FosterComponent lc = {FosterComponentType::ParallelLC,
+                                0.0, 1.0, 1.0};
+    const RemovalOption removal = {0U, std::complex<double>(-1.0, 0.0), 1U};
+    const std::vector<SynthesisStep> intermediate = {{removal, rc}};
+    const std::vector<SynthesisStep> final = {{removal, rc}, {removal, lc}};
+
+    TEST_CHECK(buildAsciiCircuit(intermediate) ==
+               "IN o---[ RC1: R=10.00 ohm, C=0.10 F ]---o OUT");
+    TEST_CHECK(buildAsciiCircuit(final) ==
+               "IN o---[ RC1: R=10.00 ohm, C=0.10 F ]---[ LC1: L=1.00 H, C=1.00 F ]---o OUT");
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -546,5 +563,7 @@ TEST_LIST = {
         { "Synthesis renderer initial state", test_SynthesisRendererInitialState },
         { "Synthesis renderer accumulated state",
             test_SynthesisRendererAccumulatedState },
+        { "ASCII circuit intermediate and final branches",
+            test_AsciiCircuitRendersIntermediateAndFinalBranches },
     { NULL, NULL }
 };

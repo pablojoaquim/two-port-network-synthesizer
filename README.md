@@ -109,7 +109,23 @@ Example:
   +------ C1 ----+
 ```
 
-The exact representation will evolve as the synthesis capabilities are implemented.
+The canonical circuit representation uses `IN` and `OUT` terminals, series-ordered
+Foster branches, deterministic branch labels, and `GND` where a grounded
+representation is needed. Parallel RC and LC branches are displayed as:
+
+```text
+IN o---[ RC1: R=10.00 ohm, C=0.10 F ]---o OUT
+IN o---[ LC1: L=1.00 H, C=1.00 F ]---o OUT
+```
+
+Multiple branches use the same notation in synthesis order:
+
+```text
+IN o---[ RC1: R=10.00 ohm, C=0.10 F ]---[ LC1: L=1.00 H, C=1.00 F ]---o OUT
+```
+
+Intermediate and final diagrams use this same notation. Component values are
+displayed to two decimal places.
 
 The final circuit will also be displayed as an ASCII circuit in the terminal.
 

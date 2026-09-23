@@ -157,6 +157,13 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 - Invalid interactive selections produce an error message and reprompt without changing the synthesis state.
 - The application is terminal-based and uses ASCII diagrams.
 - Intermediate and final circuit diagrams use consistent ASCII labels for components, terminals, connections, and ground.
+- Circuit diagrams use `IN` and `OUT` terminals, series-ordered Foster branches,
+	deterministic `RC1`, `LC1`, and subsequent branch labels, and `GND` when a
+	grounded representation is needed. A branch is rendered as
+	`[ RC1: R=10.00 ohm, C=0.10 F ]` or
+	`[ LC1: L=1.00 H, C=1.00 F ]`; multiple branches are joined with `---`.
+- Intermediate and final diagrams use the same notation and display component
+	values to two decimal places.
 - The implementation targets C and a WSL environment.
 - External dependencies should remain minimal; Eigen is required for polynomial root solving.
 
