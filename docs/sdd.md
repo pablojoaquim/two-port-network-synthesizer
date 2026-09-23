@@ -112,7 +112,9 @@ Entering `q` intentionally terminates the session. The application displays the 
 ### Internal Interfaces
 
 - The rational-function model provides the current polynomials to synthesis analysis.
-- Synthesis analysis returns available removal options and the component type and value for a valid removal.
+- Synthesis analysis returns available removal options. Each option contains an internal selection index and the associated pole value.
+- Pole values are represented as complex floating-point values; a real pole has zero imaginary part.
+- Repeated poles are represented with multiplicity information.
 - The controller applies a selected removal and updates the synthesis state.
 - The renderer receives state data and produces terminal output.
 
@@ -140,6 +142,7 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 - Coefficients must be finite floating-point values. `NaN`, positive infinity, and negative infinity are invalid input.
 - Finite coefficients may use any value representable by the implementation's floating-point type.
 - A valid total removal leaves no pole in the remaining network at the removal frequency.
+- A denominator root is treated as a pole unless cancellation behavior is explicitly defined.
 - Component type and value are obtained using the Foster method.
 - Invalid interactive selections produce an error message and reprompt without changing the synthesis state.
 - The application is terminal-based and uses ASCII diagrams.
@@ -155,6 +158,7 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 - Use terminal text and ASCII diagrams for visualization.
 - Use the repository Makefile as the build entry point.
 - Use the Acutest-based test suite through the Makefile test targets.
+- Represent poles as complex floating-point values and expose removal options through an internal selection index and pole value.
 
 ## 10. Testing Strategy
 
@@ -196,4 +200,5 @@ The initial implementation is complete when it can:
 
 ## 13. Open Decisions
 
-No open decisions are currently recorded for the initial scope.
+- Root-solving method for arbitrary-degree denominator polynomials.
+- Numerical tolerance for pole detection, repeated-pole handling, and pole-frequency comparisons.

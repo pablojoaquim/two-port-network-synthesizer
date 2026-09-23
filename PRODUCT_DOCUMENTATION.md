@@ -70,6 +70,8 @@ The current implementation stores coefficients as finite floating-point values. 
 
 A total removal is valid when the remaining network has no pole at the frequency associated with the removal. The Foster method is used to determine the removed component's type and value.
 
+Pole analysis is intended to return complex floating-point pole values. Real poles have zero imaginary part, and repeated poles include multiplicity information. A denominator root is treated as a pole unless cancellation behavior is explicitly defined.
+
 The complete mathematical procedure for pole analysis and Foster decomposition is `TBD` in the implementation.
 
 ## 4. User Workflow
@@ -129,7 +131,7 @@ Current source: `src/polynomial.cpp`, `src/polynomial.hpp`, `src/rational_functi
 
 Intended to identify poles and total-removal options and to obtain component information using the Foster method.
 
-Status: `TBD`; not implemented in the current source.
+Status: `TBD`; not implemented in the current source. The intended removal-option interface contains an internal selection index and an associated complex pole value.
 
 ### Synthesis State
 
@@ -181,6 +183,10 @@ It provides read access to both polynomials and can replace both as an updated r
 
 The SDD defines a future state containing the removal sequence, extracted component values, and circuit representation. Its exact structure is `TBD`.
 
+### Removal Option
+
+The intended removal option contains an internal selection index and the associated pole value. Pole values are complex floating-point values; repeated poles include multiplicity information.
+
 ## 8. Algorithms
 
 ### Implemented Algorithms
@@ -207,6 +213,7 @@ Polynomial multiplication uses coefficient convolution and preserves descending-
 ### Defined but Not Implemented Algorithms
 
 - Pole identification and removal-option generation: `TBD`.
+- Pole values: complex floating-point values, with multiplicity for repeated poles.
 - Total-removal validity checking: the remaining network must not have a pole at the removal frequency.
 - Foster component extraction: determine component type and value for a valid removal; complete procedure is `TBD`.
 - Synthesis completion and circuit generation: `TBD`.
@@ -306,4 +313,11 @@ The project definition identifies these future directions:
 - Add step-by-step terminal visualization.
 - Generate the final circuit representation.
 
-Specific future APIs, algorithms, network types, and user-interface details are `TBD` until defined by the project documentation.
+Specific future APIs, algorithms, network types, user-interface details, root-solving method, and numerical tolerance are `TBD` until defined by the project documentation.
+
+## 13. Open Points
+
+The following decisions are required before pole-analysis implementation:
+
+- Root-solving method for arbitrary-degree denominator polynomials.
+- Numerical tolerance for pole detection, repeated-pole handling, and pole-frequency comparisons.
