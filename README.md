@@ -1,302 +1,168 @@
-# Cyborg C++ Project Template
+# Two-Port Network Synthesizer
 
-A reusable C/C++ project template for building software using a human-led, AI-assisted engineering workflow with GitHub Copilot.
+A command-line tool for the step-by-step synthesis of linear time-invariant (LTI) two-port networks.
 
-The template provides a standard project structure, build and test infrastructure, documentation conventions, and a workflow for developing software incrementally with AI assistance.
+The system takes an LTI network representation as a rational function and interactively performs a sequence of total removals until the final circuit is obtained.
 
----
+The synthesis process is presented graphically in the terminal using ASCII diagrams.
 
-## Table of Contents
+## Objective
 
-- [Cyborg C++ Project Template](#cyborg-c-project-template)
-  - [Table of Contents](#table-of-contents)
-  - [About](#about)
-  - [Features](#features)
-  - [Cyborg Workflow](#cyborg-workflow)
-  - [Roles and Responsibilities](#roles-and-responsibilities)
-    - [Human](#human)
-    - [GitHub Copilot](#github-copilot)
-  - [Tech Stack](#tech-stack)
-  - [Project Structure](#project-structure)
-    - [Main directories](#main-directories)
-    - [Key documents](#key-documents)
-  - [Getting Started](#getting-started)
-    - [Clone the repository](#clone-the-repository)
-    - [Install dependencies](#install-dependencies)
-      - [Windows (MSYS2 / MinGW)](#windows-msys2--mingw)
-      - [Linux](#linux)
-  - [Build \& Run](#build--run)
-    - [Build](#build)
-    - [Run the executable](#run-the-executable)
-  - [Running Tests](#running-tests)
-  - [Code Coverage](#code-coverage)
-  - [Configuration](#configuration)
-  - [Using the Template](#using-the-template)
+The main objective of this project is to provide an interactive tool for studying and performing the synthesis of two-port networks.
 
----
+Given a rational transfer function:
 
-## About
+$$
+H(s) = \frac{N(s)}{D(s)}
+$$
 
-This repository is a reusable starting point for C/C++ projects developed using the Cyborg Workflow.
+the tool analyzes the system and guides the user through the synthesis process by applying successive total removals.
 
-It provides the engineering infrastructure needed to build, test, document, and maintain a project while keeping product-specific decisions outside the template.
+At each step, the user can inspect the current synthesis state and select which component or pole should be removed.
 
-The template is intentionally lightweight. Project-specific requirements, architecture, design decisions, implementation tasks, and validation criteria are created as part of the development workflow.
+The process continues until the complete circuit has been synthesized.
 
----
+## Input
 
-## Features
+The system is defined by two vectors of polynomial coefficients:
 
-* Human-led, AI-assisted development workflow
-* GitHub Copilot integration
-* Requirements and design documentation
-* Software Design Document (SDD)
-* Architecture documentation
-* Task-based development
-* Unit testing
-* Code coverage
-* Modular C/C++ project structure
-* Make-based build system
+* Numerator coefficients
+* Denominator coefficients
 
----
+Coefficients are provided in descending powers of `s`.
 
-## Cyborg Workflow
-
-This project follows a **human-led, AI-assisted engineering workflow**.
-
-The human remains responsible for understanding the problem, defining the requirements, making engineering decisions, reviewing the implementation, and accepting the final result.
-
-GitHub Copilot acts as an engineering assistant that helps with analysis, design proposals, implementation, testing, refactoring, and documentation.
-
-The development flow is:
+For example:
 
 ```text
-Problem
-   ↓
-README
-   ↓
-SDD
-   ↓
-Architecture
-   ↓
-Backlog
-   ↓
-Task
-   ↓
-Copilot
-   ↓
-Human Review
-   ↓
-Tests
-   ↓
-Done
+N(s) = 2s + 4
+
+numerator   = [2, 4]
+
+D(s) = s² + 3s + 2
+
+denominator = [1, 3, 2]
 ```
 
-A completed task does not necessarily mean that the project is finished. New requirements, findings, defects, or architectural changes can create new tasks and start another development cycle.
-
----
-
-## Roles and Responsibilities
-
-### Human
-
-The human is responsible for:
-
-* Problem definition
-* Requirements
-* Scope
-* Architecture decisions
-* Technical decisions
-* Prioritization
-* Code review
-* Validation
-* Final acceptance
-
-### GitHub Copilot
-
-Copilot assists with:
-
-* Problem analysis
-* Design proposals
-* Implementation
-* Test development
-* Refactoring
-* Documentation
-* Code exploration
-* Identifying potential issues
-
-Copilot must work within the requirements, architecture, and constraints defined by the project.
-
----
-
-## Tech Stack
-
-| Component    | Technology             |
-| ------------ | ---------------------- |
-| Language     | C / C++                |
-| Build System | Make                   |
-| Testing      | Unit testing framework |
-| Coverage     | gcov / gcovr           |
-| AI Assistant | GitHub Copilot         |
-
----
-
-## Project Structure
+The resulting transfer function is:
 
 ```text
-cyborg-cpp-project-template/
-│
-├── .github/
-│   └── copilot-instructions.md
-│
-├── assets/
-│
-├── backlog/
-│   └── tasks/
-│
-├── docs/
-│   ├── sdd.md
-│   └── architecture/
-│
-├── src/
-├── test/
-├── tools/
-├── utils/
-│
-├── .gitignore
-├── LICENSE
-├── Makefile
-├── README.md
-└── backlog.md
+        2s + 4
+H(s) = ---------
+        s² + 3s + 2
 ```
 
-### Main directories
+## Synthesis Process
 
-| Directory            | Purpose                                 |
-| -------------------- | --------------------------------------- |
-| `.github/`           | GitHub and Copilot project instructions |
-| `assets/`            | Project assets and supporting files     |
-| `backlog/`           | Task definitions                        |
-| `docs/`              | Project documentation                   |
-| `docs/architecture/` | Detailed architecture documentation     |
-| `src/`               | Production source code                  |
-| `test/`              | Unit and integration tests              |
-| `tools/`             | Development and engineering tools       |
-| `utils/`             | Reusable utilities                      |
+The synthesis is performed through successive total removals.
 
-### Key documents
+At each stage, the tool:
 
-| File                              | Purpose                                         |
-| --------------------------------- | ----------------------------------------------- |
-| `README.md`                       | Project overview and entry point                |
-| `docs/sdd.md`                     | Software Design Document                        |
-| `backlog.md`                      | Project backlog                                 |
-| `backlog/tasks/`                  | Individual task definitions                     |
-| `.github/copilot-instructions.md` | Instructions and constraints for GitHub Copilot |
+1. Displays the current rational function.
+2. Displays the current synthesis state.
+3. Displays the available removal options.
+4. Asks the user which component or pole should be removed.
+5. Performs the selected removal.
+6. Updates the rational function.
+7. Displays the resulting synthesis step graphically.
+8. Continues until the network is completely synthesized.
 
----
+The user therefore controls the synthesis path interactively.
 
-## Getting Started
+The process is intended to make every intermediate step visible rather than treating synthesis as a black-box operation.
 
-### Clone the repository
+## Terminal Visualization
 
-```bash
-git clone https://github.com/yourname/project.git
-cd project
-```
+The application runs entirely in the terminal.
 
-> Replace the repository URL and project name with the project created from this template.
+No graphical user interface is required.
 
-### Install dependencies
+The synthesis is represented using ASCII diagrams.
 
-#### Windows (MSYS2 / MinGW)
-
-```bash
-pacman -S mingw-w64-x86_64-gcc gcovr
-```
-
-#### Linux
-
-```bash
-sudo apt install build-essential gcovr
-```
-
----
-
-## Build & Run
-
-### Build
-
-```bash
-make
-```
-
-### Run the executable
-
-```bash
-make run
-```
-
----
-
-## Running Tests
-
-Build the test targets:
-
-```bash
-make tests
-```
-
-Run the tests:
-
-```bash
-make run-tests
-```
-
----
-
-## Code Coverage
-
-Generate the coverage report:
-
-```bash
-make coverage
-```
-
-The report is generated at:
+Example:
 
 ```text
-build/coverage/coverage.html
+        R1
+  +----/\/\/\----+
+  |              |
+--+              +--
+  |              |
+  +------ C1 ----+
 ```
 
----
+The exact representation will evolve as the synthesis capabilities are implemented.
 
-## Configuration
+The final circuit will also be displayed as an ASCII circuit in the terminal.
 
-Common Makefile variables that can be customized:
+## Final Output
 
-| Variable    | Description             |
-| ----------- | ----------------------- |
-| `SRC_DIRS`  | Source code directories |
-| `TEST_DIRS` | Test code directories   |
+When the synthesis process is complete, the application provides:
 
-Project-specific configuration should be documented in the appropriate project documentation rather than added to this template.
+* The complete synthesized circuit.
+* The sequence of removals performed.
+* The component values obtained during synthesis.
+* An ASCII representation of the final circuit.
 
----
+Example:
 
-## Using the Template
+```text
+SYNTHESIS COMPLETE
 
-When creating a new project from this template:
+Circuit:
 
-1. Define the problem and project scope.
-2. Adapt this `README.md` to describe the new project.
-3. Define the software design in `docs/sdd.md`.
-4. Document relevant architecture information in `docs/architecture/`.
-5. Create and prioritize items in `backlog.md`.
-6. Break backlog items into individual tasks.
-7. Use GitHub Copilot to assist with one task at a time.
-8. Review and validate the generated implementation.
-9. Run the relevant tests.
-10. Mark the task as done only after human validation.
+          R1
+IN o---/\/\/\---+---o OUT
+                |
+               C1
+                |
+               GND
 
-The template provides the engineering framework. **The project defines the product.**
+Components:
+
+R1 = 10.0 Ω
+C1 = 100.0 µF
+```
+
+## Technology
+
+The software is developed in **C**.
+
+The implementation should use the C standard library whenever possible, with minimal or no dependency on external libraries.
+
+The project is intended to run in a **WSL (Windows Subsystem for Linux)** environment.
+
+## Project Goals
+
+The initial implementation focuses on:
+
+* LTI systems represented as rational polynomials.
+* Polynomial manipulation.
+* Analysis required for total removals.
+* Interactive synthesis.
+* Step-by-step synthesis visualization.
+* ASCII circuit representation.
+* Final circuit generation.
+* Reproducible command-line execution.
+
+The architecture should allow additional synthesis methods and network representations to be incorporated in the future.
+
+## Building
+
+The project is intended to be built from the WSL terminal using a standard C compiler.
+
+The exact build procedure will be defined as part of the project implementation.
+
+## Development Methodology
+
+The project is developed following the **Software Design Document (SDD)** methodology.
+
+The `SDD.md` document defines the software requirements, design decisions, open points, and development guidance used to implement the project.
+
+The README describes **what the project is and how it is used**.
+
+The SDD describes **what the software must do and how it should be developed**.
+
+## Project Status
+
+Early development.
+
+The initial version focuses on establishing the mathematical model, synthesis process, interactive workflow, and terminal representation.
