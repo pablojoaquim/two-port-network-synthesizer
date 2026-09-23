@@ -95,7 +95,8 @@ ifeq ($(OS),Windows_NT)
 	if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
 	for %%d in ($(SRC_DIRS)) do if not exist "$(OBJ_DIR)\%%d" mkdir "$(OBJ_DIR)\%%d"
 	for %%d in ($(TEST_DIRS)) do if not exist "$(OBJ_DIR)\%%d" mkdir "$(OBJ_DIR)\%%d"
-	xcopy $(ASSETS_DIR) $(BUILD_ASSETS_DIR) /E /I /Y
+	if not exist "$(BUILD_ASSETS_DIR)" mkdir "$(BUILD_ASSETS_DIR)"
+	xcopy "$(ASSETS_DIR)\*" "$(BUILD_ASSETS_DIR)\" /E /I /Y
 else
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(OBJ_DIR)

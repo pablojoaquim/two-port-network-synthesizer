@@ -18,7 +18,7 @@ The system shall:
 
 1. Accept numerator and denominator coefficient vectors as command-line arguments.
 2. Interpret coefficients in descending powers of `s`.
-3. Represent the input as a rational function:
+3. Represent the input impedance as a rational function:
 
    $$
    H(s) = \frac{N(s)}{D(s)}
@@ -29,7 +29,7 @@ The system shall:
 6. Determine and display available total-removal options.
 7. Accept the user's removal selection or `q` to finish interactively.
 8. Validate a total removal by ensuring that the remaining network has no pole at the frequency of that removal.
-9. Use the Foster method to determine the removed component's type and value.
+9. Use the Foster method for impedance to determine the removed component's type and value.
 10. If no valid Foster decomposition is available for the current state, report that no removal can be performed and stop synthesis.
 11. Update the rational function and synthesis state after a removal.
 12. Display each synthesis step as terminal text and ASCII graphics.
@@ -137,13 +137,23 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 ## 8. Constraints
 
 - The input consists of numerator and denominator coefficient vectors.
+- The rational function always represents impedance.
 - Coefficients are specified in descending powers of `s`.
 - Calculations use floating-point values with two decimal places sufficient for precision and display.
 - Coefficients must be finite floating-point values. `NaN`, positive infinity, and negative infinity are invalid input.
 - Finite coefficients may use any value representable by the implementation's floating-point type.
 - A valid total removal leaves no pole in the remaining network at the removal frequency.
+- A total removal is valid only when the remaining impedance has no pole at the
+	selected frequency; the selected pole must therefore be fully removed.
 - A denominator root is treated as a pole unless cancellation behavior is explicitly defined.
-- Component type and value are obtained using the Foster method.
+- Foster impedance extraction supports real negative poles and conjugate pole
+	pairs on the $j\omega$ axis. A real pole $p=-a$ with residue $K$ contributes
+	$K/(s+a)$ and is represented by a parallel RC branch with
+	$C=1/K$ and $R=K/a$. A conjugate pair at $\pm j\omega_0$ contributes
+	$Ks/(s^2+\omega_0^2)$ and is represented by a parallel LC branch with
+	$C=1/K$ and $L=K/\omega_0^2$.
+- Component values must be finite and positive; unsupported pole locations or
+	non-positive residues have no valid Foster decomposition.
 - Invalid interactive selections produce an error message and reprompt without changing the synthesis state.
 - The application is terminal-based and uses ASCII diagrams.
 - Intermediate and final circuit diagrams use consistent ASCII labels for components, terminals, connections, and ground.

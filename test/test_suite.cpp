@@ -40,6 +40,7 @@
 #include "polynomial.hpp"
 #include "pole_analysis.hpp"
 #include "rational_function.hpp"
+#include "total_removal.hpp"
 
 /*===========================================================================*
  * Local Preprocessor #define Constants
@@ -237,6 +238,24 @@ void test_PoleAnalysisWithComplexAndRepeatedPoles(void)
     TEST_CHECK(repeatedOptions[0].multiplicity == 2U);
 }
 
+void test_TotalRemovalValidation(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, -3.0, 2.0}));
+    const std::vector<RemovalOption> options =
+        identifyRemovalOptions(rationalFunction);
+
+    TEST_CHECK(validateTotalRemoval(rationalFunction, options[0]));
+
+    const RationalFunction repeatedFunction(
+        Polynomial({1.0}), Polynomial({1.0, -2.0, 1.0}));
+    const RemovalOption repeatedOption =
+        identifyRemovalOptions(repeatedFunction)[0];
+    TEST_CHECK(!validateTotalRemoval(repeatedFunction, repeatedOption));
+    TEST_CHECK(repeatedFunction.denominator().coefficients() ==
+               std::vector<double>({1.0, -2.0, 1.0}));
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -256,5 +275,6 @@ TEST_LIST = {
         { "Pole analysis with real poles", test_PoleAnalysisWithRealPoles },
         { "Pole analysis with complex and repeated poles",
             test_PoleAnalysisWithComplexAndRepeatedPoles },
+    { "Total removal validation", test_TotalRemovalValidation },
     { NULL, NULL }
 };

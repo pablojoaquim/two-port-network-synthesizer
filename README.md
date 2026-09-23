@@ -2,7 +2,7 @@
 
 A command-line tool for the step-by-step synthesis of linear time-invariant (LTI) two-port networks.
 
-The system takes an LTI network representation as a rational function and interactively performs a sequence of total removals until the final circuit is obtained.
+The system takes an LTI network impedance as a rational function and interactively performs a sequence of total removals until the final circuit is obtained.
 
 The synthesis process is presented graphically in the terminal using ASCII diagrams.
 
@@ -65,6 +65,26 @@ At each stage, the tool:
 6. Updates the rational function.
 7. Displays the resulting synthesis step graphically.
 8. Continues until the network is completely synthesized.
+
+The rational function always represents impedance. A total removal at a selected
+frequency is valid only when the remaining impedance has no pole at that
+frequency. Foster extraction supports real negative poles and conjugate pole
+pairs on the $j\omega$ axis. For a real pole $p=-a$ with residue $K$, the
+Foster term is $K/(s+a)$ and represents a parallel RC branch:
+
+$$
+C = \frac{1}{K}, \qquad R = \frac{K}{a}
+$$
+
+For a conjugate pair at $\pm j\omega_0$, the Foster term is
+$K s/(s^2+\omega_0^2)$ and represents a parallel LC branch:
+
+$$
+C = \frac{1}{K}, \qquad L = \frac{K}{\omega_0^2}
+$$
+
+Only decompositions with finite positive component values are available for
+removal.
 
 The user therefore controls the synthesis path interactively.
 

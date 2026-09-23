@@ -18,9 +18,9 @@ A total removal is valid when the remaining network has no pole at the frequency
 
 ## Acceptance Criteria
 
-- [ ] A candidate satisfying the no-remaining-pole condition is accepted.
-- [ ] A candidate that leaves a pole at the removal frequency is rejected.
-- [ ] Rejected validation does not modify the synthesis state.
+- [x] A candidate satisfying the no-remaining-pole condition is accepted.
+- [x] A candidate that leaves a pole at the removal frequency is rejected.
+- [x] Rejected validation does not modify the synthesis state.
 
 ## Tests
 
