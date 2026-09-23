@@ -19,9 +19,9 @@ The system models $H(s) = N(s) / D(s)$ and updates it after each total removal.
 
 ## Acceptance Criteria
 
-- [ ] A rational function can be constructed from two polynomials.
-- [ ] Numerator and denominator can be read by dependent components.
-- [ ] The rational function can be replaced with an updated state after a removal.
+- [x] A rational function can be constructed from two polynomials.
+- [x] Numerator and denominator can be read by dependent components.
+- [x] The rational function can be replaced with an updated state after a removal.
 
 ## Tests
 
@@ -29,7 +29,7 @@ Test construction, access, and replacement of rational-function state.
 
 ## Definition of Done
 
-The rational-function model and focused tests are implemented and pass.
+Done. The rational-function model and focused tests are implemented and pass.
 
 ## Dependencies
 

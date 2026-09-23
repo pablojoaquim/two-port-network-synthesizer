@@ -38,6 +38,7 @@
 #include "acutest.h"
 #include "cli_parser.hpp"
 #include "polynomial.hpp"
+#include "rational_function.hpp"
 
 /*===========================================================================*
  * Local Preprocessor #define Constants
@@ -162,6 +163,34 @@ void test_PolynomialMultiplication(void)
     TEST_CHECK(result.coefficients() == std::vector<double>({3.0, 10.0, 8.0}));
 }
 
+void test_RationalFunctionConstructionAndAccess(void)
+{
+    const Polynomial numerator({1.0, 2.0});
+    const Polynomial denominator({3.0, 4.0});
+    const RationalFunction rationalFunction(numerator, denominator);
+
+    TEST_CHECK(rationalFunction.numerator().coefficients() ==
+               numerator.coefficients());
+    TEST_CHECK(rationalFunction.denominator().coefficients() ==
+               denominator.coefficients());
+}
+
+void test_RationalFunctionReplacement(void)
+{
+    const Polynomial initialNumerator({1.0, 2.0});
+    const Polynomial initialDenominator({3.0, 4.0});
+    RationalFunction rationalFunction(initialNumerator, initialDenominator);
+    const Polynomial updatedNumerator({5.0, 6.0});
+    const Polynomial updatedDenominator({7.0, 8.0});
+
+    rationalFunction.replace(updatedNumerator, updatedDenominator);
+
+    TEST_CHECK(rationalFunction.numerator().coefficients() ==
+               updatedNumerator.coefficients());
+    TEST_CHECK(rationalFunction.denominator().coefficients() ==
+               updatedDenominator.coefficients());
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -174,5 +203,8 @@ TEST_LIST = {
         { "Polynomial representation", test_PolynomialRepresentation },
         { "Polynomial sum", test_PolynomialSum },
         { "Polynomial multiplication", test_PolynomialMultiplication },
+        { "Rational function construction and access",
+            test_RationalFunctionConstructionAndAccess },
+        { "Rational function replacement", test_RationalFunctionReplacement },
     { NULL, NULL }
 };
