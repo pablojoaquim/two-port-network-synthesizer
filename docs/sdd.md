@@ -148,7 +148,7 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 - The application is terminal-based and uses ASCII diagrams.
 - Intermediate and final circuit diagrams use consistent ASCII labels for components, terminals, connections, and ground.
 - The implementation targets C and a WSL environment.
-- The implementation should avoid unnecessary external dependencies.
+- External dependencies should remain minimal; Eigen is required for polynomial root solving.
 
 ## 9. Technology Decisions
 
@@ -159,6 +159,9 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 - Use the repository Makefile as the build entry point.
 - Use the Acutest-based test suite through the Makefile test targets.
 - Represent poles as complex floating-point values and expose removal options through an internal selection index and pole value.
+- Use Eigen's `PolynomialSolver` for denominator roots through a companion-matrix eigenvalue calculation.
+- Use a scale-aware pole residual tolerance of `1e-10`.
+- Group repeated roots when their distance is at most `1e-8 * max(1, |p_i|, |p_j|)`.
 
 ## 10. Testing Strategy
 
@@ -200,5 +203,4 @@ The initial implementation is complete when it can:
 
 ## 13. Open Decisions
 
-- Root-solving method for arbitrary-degree denominator polynomials.
-- Numerical tolerance for pole detection, repeated-pole handling, and pole-frequency comparisons.
+No open decisions are currently recorded for the initial E002 scope.
