@@ -65,6 +65,7 @@ CPP_TEST_FILES 	= $(foreach d,$(TEST_DIRS),$(wildcard $(d)/test_*.cpp))
 # ===============================
 CFLAGS += $(foreach dir,$(SRC_DIRS), -I$(dir))
 CXXFLAGS += $(foreach d,$(SRC_DIRS), -I$(d))
+CXXFLAGS += -Ithird_party/eigen
 
 # ===============================
 # Outputs

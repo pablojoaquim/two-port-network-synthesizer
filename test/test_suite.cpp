@@ -38,6 +38,7 @@
 #include "acutest.h"
 #include "cli_parser.hpp"
 #include "polynomial.hpp"
+#include "pole_analysis.hpp"
 #include "rational_function.hpp"
 
 /*===========================================================================*
@@ -191,6 +192,51 @@ void test_RationalFunctionReplacement(void)
                updatedDenominator.coefficients());
 }
 
+void test_PoleAnalysisWithNoPoles(void)
+{
+    const RationalFunction rationalFunction(Polynomial({1.0}),
+                                                  Polynomial({2.0}));
+
+    TEST_CHECK(identifyRemovalOptions(rationalFunction).empty());
+}
+
+void test_PoleAnalysisWithRealPoles(void)
+{
+    const RationalFunction rationalFunction(Polynomial({1.0}),
+                                                  Polynomial({1.0, -3.0, 2.0}));
+    const std::vector<RemovalOption> options =
+        identifyRemovalOptions(rationalFunction);
+
+    TEST_CHECK(options.size() == 2U);
+    TEST_CHECK(options[0].index == 0U);
+    TEST_CHECK(options[1].index == 1U);
+    TEST_CHECK(std::abs(options[0].pole.real() - 1.0) < 1.0e-10);
+    TEST_CHECK(std::abs(options[1].pole.real() - 2.0) < 1.0e-10);
+    TEST_CHECK(options[0].multiplicity == 1U);
+    TEST_CHECK(options[1].multiplicity == 1U);
+}
+
+void test_PoleAnalysisWithComplexAndRepeatedPoles(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, -2.0, 2.0}));
+    const std::vector<RemovalOption> complexOptions =
+        identifyRemovalOptions(rationalFunction);
+
+    TEST_CHECK(complexOptions.size() == 2U);
+    TEST_CHECK(std::abs(complexOptions[0].pole.real() - 1.0) < 1.0e-10);
+    TEST_CHECK(std::abs(std::abs(complexOptions[0].pole.imag()) - 1.0) <
+               1.0e-10);
+
+    const RationalFunction repeatedFunction(
+        Polynomial({1.0}), Polynomial({1.0, -2.0, 1.0}));
+    const std::vector<RemovalOption> repeatedOptions =
+        identifyRemovalOptions(repeatedFunction);
+
+    TEST_CHECK(repeatedOptions.size() == 1U);
+    TEST_CHECK(repeatedOptions[0].multiplicity == 2U);
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -206,5 +252,9 @@ TEST_LIST = {
         { "Rational function construction and access",
             test_RationalFunctionConstructionAndAccess },
         { "Rational function replacement", test_RationalFunctionReplacement },
+        { "Pole analysis with no poles", test_PoleAnalysisWithNoPoles },
+        { "Pole analysis with real poles", test_PoleAnalysisWithRealPoles },
+        { "Pole analysis with complex and repeated poles",
+            test_PoleAnalysisWithComplexAndRepeatedPoles },
     { NULL, NULL }
 };

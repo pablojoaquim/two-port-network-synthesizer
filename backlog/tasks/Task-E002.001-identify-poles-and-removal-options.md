@@ -19,9 +19,9 @@ Each synthesis step displays the available component or pole removal choices.
 
 ## Acceptance Criteria
 
-- [ ] Poles can be identified from the current rational function.
-- [ ] Available removal options are returned in a form usable by the controller.
-- [ ] An empty pole set is reported as the completion condition.
+- [x] Poles can be identified from the current rational function.
+- [x] Available removal options are returned in a form usable by the controller.
+- [x] An empty pole set is reported as the completion condition.
 
 ## Tests
 
@@ -29,7 +29,7 @@ Test pole detection and option generation for rational functions with zero, sing
 
 ## Definition of Done
 
-Pole analysis and focused tests are implemented and pass.
+Done. Pole analysis and focused tests are implemented and pass.
 
 ## Dependencies
 
