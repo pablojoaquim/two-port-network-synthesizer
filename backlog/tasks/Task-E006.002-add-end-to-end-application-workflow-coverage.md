@@ -24,10 +24,10 @@ The current tests exercise `runSynthesis` directly, but do not prove that the bu
 
 ## Acceptance Criteria
 
-- [ ] A complete executable workflow is automated.
-- [ ] A partial `q` executable workflow is automated.
-- [ ] Invalid input is verified not to enter synthesis.
-- [ ] Tests distinguish executable behavior from direct controller tests.
+- [x] A complete executable workflow is automated.
+- [x] A partial `q` executable workflow is automated.
+- [x] Invalid input is verified not to enter synthesis.
+- [x] Tests distinguish executable behavior from direct controller tests.
 
 ## Tests
 

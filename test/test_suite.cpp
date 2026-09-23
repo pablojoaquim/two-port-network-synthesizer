@@ -586,6 +586,23 @@ void test_ApplicationRunnerRejectsInvalidInputBeforeSynthesis(void)
     TEST_CHECK(errors.str().find("Error:") == 0U);
 }
 
+void test_ApplicationRunnerRejectsMalformedVectorBeforeSynthesis(void)
+{
+    char argument0[] = "application";
+    char argument1[] = "[1]";
+    char argument2[] = "[1,2";
+    char *arguments[] = {argument0, argument1, argument2};
+    std::istringstream input("q\n");
+    std::ostringstream output;
+    std::ostringstream errors;
+
+    TEST_CHECK(runApplication(3, arguments, input, output, errors) == 1);
+    TEST_CHECK(output.str().empty());
+    TEST_CHECK(errors.str().find(
+                   "Error: coefficient vector must use [value,value] syntax") ==
+               0U);
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -640,5 +657,7 @@ TEST_LIST = {
             test_ApplicationRunnerSupportsPartialWorkflow },
         { "Application runner rejects invalid input",
             test_ApplicationRunnerRejectsInvalidInputBeforeSynthesis },
+        { "Application runner rejects malformed vector",
+            test_ApplicationRunnerRejectsMalformedVectorBeforeSynthesis },
     { NULL, NULL }
 };
