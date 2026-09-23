@@ -19,9 +19,9 @@ The application is invoked as `application [numerator coefficients][denominator 
 
 ## Acceptance Criteria
 
-- [ ] A valid example such as `[1,1,2][2,1,3]` is parsed into two coefficient vectors.
-- [ ] Missing or malformed vectors are rejected without starting synthesis.
-- [ ] Non-finite coefficient values are rejected.
+- [x] A valid example such as `[1,1,2][2,1,3]` is parsed into two coefficient vectors.
+- [x] Missing or malformed vectors are rejected without starting synthesis.
+- [x] Non-finite coefficient values are rejected.
 
 ## Tests
 
@@ -29,7 +29,7 @@ Test valid input, missing arguments, malformed syntax, incompatible vectors, and
 
 ## Definition of Done
 
-Parsing behavior and focused tests are implemented and pass.
+Done. Parsing behavior and focused tests are implemented and pass.
 
 ## Dependencies
 
