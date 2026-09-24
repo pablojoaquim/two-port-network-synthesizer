@@ -1,6 +1,7 @@
-# Two-Port Network Synthesizer
+# Foster-I One-Port Impedance Synthesizer
 
-A command-line tool for the step-by-step synthesis of linear time-invariant (LTI) two-port networks.
+A command-line tool for step-by-step Foster-I synthesis of realizable linear
+time-invariant (LTI) one-port impedances.
 
 The system takes a one-port LTI network impedance as a rational function and interactively performs a sequence of Foster-I removals until the final circuit is obtained. Terminated two-port synthesis is outside the current scope.
 
@@ -8,12 +9,14 @@ The synthesis process is presented graphically in the terminal using ASCII diagr
 
 ## Objective
 
-The main objective of this project is to provide an interactive tool for studying and performing the synthesis of two-port networks.
+The main objective is to provide an interactive study tool for synthesizing a
+supported one-port impedance into passive Foster-I components. Terminated
+two-port synthesis is a future extension, not current behavior.
 
-Given a rational transfer function:
+Given a rational impedance:
 
 $$
-H(s) = \frac{N(s)}{D(s)}
+Z(s) = \frac{N(s)}{D(s)}
 $$
 
 the tool analyzes the system and guides the user through the synthesis process by applying successive total removals.
@@ -47,7 +50,7 @@ The resulting transfer function is:
 
 ```text
         2s + 4
-H(s) = ---------
+Z(s) = ---------
         s² + 3s + 2
 ```
 
@@ -126,13 +129,15 @@ Example:
   +------ C1 ----+
 ```
 
-The canonical circuit representation uses `IN` and `OUT` terminals, series-ordered
-Foster branches, deterministic branch labels, and `GND` where a grounded
-representation is needed. Parallel RC and LC branches are displayed as:
+The canonical circuit representation uses `IN` and `OUT` terminals,
+series-ordered Foster branches, deterministic labels, and `GND` where a
+grounded representation is needed. Supported branch and endpoint examples are:
 
 ```text
 IN o---[ RC1: R=10.00 ohm, C=0.10 F ]---o OUT
+IN o---[ RL1: R=1.00 ohm, L=1.00 H ]---o OUT
 IN o---[ LC1: L=1.00 H, C=1.00 F ]---o OUT
+IN o---[ L1: L=3.00 H ]---[ R1: R=2.00 ohm ]---o OUT
 ```
 
 Multiple branches use the same notation in synthesis order:
@@ -177,17 +182,16 @@ C1 = 100.0 µF
 
 ## Technology
 
-The software is developed in **C**.
+The software is developed in **C++17**. It uses Eigen for polynomial root
+solving and Acutest for the test suite.
 
-The implementation should use the C standard library whenever possible, with minimal or no dependency on external libraries.
-
-The project is intended to run in a **WSL (Windows Subsystem for Linux)** environment.
+The documented environment is **WSL (Windows Subsystem for Linux)**.
 
 ## Project Goals
 
 The initial implementation focuses on:
 
-* LTI systems represented as rational polynomials.
+* One-port impedances represented as rational polynomials.
 * Polynomial manipulation.
 * Analysis required for total removals.
 * Interactive synthesis.
@@ -196,7 +200,8 @@ The initial implementation focuses on:
 * Final circuit generation.
 * Reproducible command-line execution.
 
-The architecture should allow additional synthesis methods and network representations to be incorporated in the future.
+The architecture permits additional synthesis methods and network
+representations in the future, but they are outside the current scope.
 
 ## Building
 
@@ -229,8 +234,10 @@ The README describes **what the project is and how it is used**.
 
 The SDD describes **what the software must do and how it should be developed**.
 
-## Project Status
+## Current Limitations
 
-Early development.
-
-The initial version focuses on establishing the mathematical model, synthesis process, interactive workflow, and terminal representation.
+The application supports Foster-I synthesis of one-port impedances only. It
+does not synthesize admittances, Foster-II forms, Cauer ladders, or terminated
+two-port transfer functions. Common numerator and denominator factors are not
+canceled. Inputs outside the documented realizability conditions are rejected
+before interaction.

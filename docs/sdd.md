@@ -21,7 +21,7 @@ The system shall:
 3. Represent the input impedance as a rational function:
 
    $$
-   H(s) = \frac{N(s)}{D(s)}
+	Z(s) = \frac{N(s)}{D(s)}
    $$
 
 4. Reject missing, malformed, incompatible, or non-finite command-line arguments by displaying an error message and terminating before synthesis begins.
@@ -40,8 +40,8 @@ The system shall:
 ### Non-Functional Requirements
 
 - The application shall run in a terminal.
-- The implementation shall use C.
-- The C standard library should be used whenever possible.
+- The implementation shall use C++17.
+- The C++ standard library should be used whenever possible.
 - External dependencies shall be minimal or absent.
 - Floating-point values shall be used for polynomial and component calculations.
 - Two decimal places are sufficient for calculated and displayed values.
@@ -171,10 +171,12 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 - The application is terminal-based and uses ASCII diagrams.
 - Intermediate and final circuit diagrams use consistent ASCII labels for components, terminals, connections, and ground.
 - Circuit diagrams use `IN` and `OUT` terminals, series-ordered Foster branches,
-	deterministic `RC1`, `LC1`, and subsequent branch labels, and `GND` when a
+	deterministic `RC1`, `RL1`, `LC1`, `R1`, `C1`, `L1`, and subsequent labels, and `GND` when a
 	grounded representation is needed. A branch is rendered as
-	`[ RC1: R=10.00 ohm, C=0.10 F ]` or
-	`[ LC1: L=1.00 H, C=1.00 F ]`; multiple branches are joined with `---`.
+	`[ RC1: R=10.00 ohm, C=0.10 F ]`,
+	`[ RL1: R=1.00 ohm, L=1.00 H ]`, or
+	`[ LC1: L=1.00 H, C=1.00 F ]`; endpoint components use `R`, `C`, or `L`
+	labels and multiple components are joined with `---`.
 - Intermediate and final diagrams use the same notation and display component
 	values to two decimal places.
 - The implementation targets C and a WSL environment.
@@ -182,8 +184,8 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 
 ## 9. Technology Decisions
 
-- Use C as the implementation language.
-- Prefer the C standard library for parsing, numerical handling, interaction, and output.
+- Use C++17 as the implementation language.
+- Prefer the C++ standard library for parsing, numerical handling, interaction, and output.
 - Use command-line arguments for the two input coefficient vectors.
 - Use terminal text and ASCII diagrams for visualization.
 - Use the repository Makefile as the build entry point.
@@ -207,7 +209,8 @@ Testing shall cover the defined mathematical and workflow behavior, including:
 - Rendering of intermediate and final synthesis information.
 - Build with `make` or `make all` and execute tests with `make run-tests`.
 
-The exact test framework and build commands remain unspecified.
+The test framework is Acutest. The repository build commands are `make all`
+and `make run-tests` in WSL.
 
 ## 11. Definition of Done
 
@@ -227,10 +230,12 @@ The initial implementation is complete when it can:
 
 - Floating-point calculations may affect pole detection and component values.
 - The supported magnitude range for finite coefficients has not been defined.
-- The exact circuit and ASCII representations may evolve as synthesis capabilities are implemented.
-- The mathematical details required for all synthesis cases may require refinement during implementation.
+- Unsupported synthesis families require separate design work before implementation.
 - The supported finite coefficient range is limited by the implementation's floating-point type.
 
-## 13. Open Decisions
+## 13. Unsupported Scope
 
-No open decisions are currently recorded for the initial E002 scope.
+- Foster-II admittance synthesis.
+- Cauer continued-fraction ladder synthesis.
+- Terminated two-port synthesis and transfer-function realization.
+- Automatic cancellation of common numerator and denominator factors.
