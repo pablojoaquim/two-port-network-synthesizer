@@ -49,6 +49,41 @@ bool extractFosterComponent(const RationalFunction &rationalFunction,
                             const RemovalOption &option,
                             FosterComponent &component)
 {
+    const std::vector<double> &numerator =
+        rationalFunction.numerator().coefficients();
+    const std::vector<double> &denominator =
+        rationalFunction.denominator().coefficients();
+    if (option.location == RemovalLocation::Infinity)
+    {
+        if (numerator.size() != denominator.size() + 1U)
+        {
+            return false;
+        }
+        const double inductance = numerator.front() / denominator.front();
+        if (!finitePositive(inductance))
+        {
+            return false;
+        }
+        component = {FosterComponentType::SeriesInductor, 0.0, 0.0,
+                     inductance};
+        return true;
+    }
+    if (option.location == RemovalLocation::Constant)
+    {
+        if (numerator.size() != denominator.size())
+        {
+            return false;
+        }
+        const double resistance = numerator.front() / denominator.front();
+        if (!std::isfinite(resistance) || resistance < 0.0)
+        {
+            return false;
+        }
+        component = {FosterComponentType::SeriesResistor, resistance,
+                     0.0, 0.0};
+        return true;
+    }
+
     const std::complex<double> denominatorDerivative = derivativeAt(
         rationalFunction.denominator(), option.pole);
     if (std::abs(denominatorDerivative) <= std::numeric_limits<double>::epsilon())
@@ -67,16 +102,46 @@ bool extractFosterComponent(const RationalFunction &rationalFunction,
     if (std::abs(option.pole.imag()) <= kAxisTolerance)
     {
         const double a = -option.pole.real();
-        const double conductanceResidue = residue.real();
-        const double capacitance = 1.0 / conductanceResidue;
-        const double resistance = conductanceResidue / a;
-        if (!finitePositive(a) || !finitePositive(capacitance) ||
-            !finitePositive(resistance) || std::abs(residue.imag()) > kAxisTolerance)
+        if (std::abs(residue.imag()) > kAxisTolerance)
         {
             return false;
         }
-        component = {FosterComponentType::ParallelRC, resistance,
-                     capacitance, 0.0};
+        if (std::abs(a) <= kAxisTolerance)
+        {
+            const double capacitance = 1.0 / residue.real();
+            if (!finitePositive(capacitance))
+            {
+                return false;
+            }
+            component = {FosterComponentType::SeriesCapacitor, 0.0,
+                         capacitance, 0.0};
+            return true;
+        }
+        if (!finitePositive(a))
+        {
+            return false;
+        }
+        if (residue.real() > 0.0)
+        {
+            const double capacitance = 1.0 / residue.real();
+            const double resistance = residue.real() / a;
+            if (!finitePositive(capacitance) || !finitePositive(resistance))
+            {
+                return false;
+            }
+            component = {FosterComponentType::ParallelRC, resistance,
+                         capacitance, 0.0};
+            return true;
+        }
+
+        const double resistance = -residue.real() / a;
+        const double inductance = resistance / a;
+        if (!finitePositive(resistance) || !finitePositive(inductance))
+        {
+            return false;
+        }
+        component = {FosterComponentType::ParallelRL, resistance, 0.0,
+                     inductance};
         return true;
     }
 

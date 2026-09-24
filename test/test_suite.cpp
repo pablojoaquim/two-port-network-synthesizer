@@ -288,6 +288,46 @@ void test_FosterExtractionForImaginaryPolePair(void)
     TEST_CHECK(std::abs(component.inductance - 1.0) < 1.0e-10);
 }
 
+void test_FosterExtractionForRealPoleRL(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0, 0.0}), Polynomial({1.0, 1.0}));
+    const RemovalOption option = identifyRemovalOptions(rationalFunction)[0];
+    FosterComponent component;
+
+    TEST_CHECK(extractFosterComponent(rationalFunction, option, component));
+    TEST_CHECK(component.type == FosterComponentType::ParallelRL);
+    TEST_CHECK(std::abs(component.resistance - 1.0) < 1.0e-10);
+    TEST_CHECK(std::abs(component.inductance - 1.0) < 1.0e-10);
+}
+
+void test_FosterExtractionForEndpointTerms(void)
+{
+    FosterComponent component;
+    const RationalFunction capacitor(
+        Polynomial({2.0}), Polynomial({1.0, 0.0}));
+    const RemovalOption zeroPole = identifyRemovalOptions(capacitor)[0];
+    TEST_CHECK(extractFosterComponent(capacitor, zeroPole, component));
+    TEST_CHECK(component.type == FosterComponentType::SeriesCapacitor);
+    TEST_CHECK(std::abs(component.capacitance - 0.5) < 1.0e-10);
+
+    const RemovalOption infinity = {0U, {}, 1U, {},
+                                    RemovalLocation::Infinity};
+    TEST_CHECK(extractFosterComponent(
+        RationalFunction(Polynomial({3.0, 0.0}), Polynomial({1.0})),
+        infinity, component));
+    TEST_CHECK(component.type == FosterComponentType::SeriesInductor);
+    TEST_CHECK(std::abs(component.inductance - 3.0) < 1.0e-10);
+
+    const RemovalOption constant = {0U, {}, 1U, {},
+                                    RemovalLocation::Constant};
+    TEST_CHECK(extractFosterComponent(
+        RationalFunction(Polynomial({4.0}), Polynomial({2.0})),
+        constant, component));
+    TEST_CHECK(component.type == FosterComponentType::SeriesResistor);
+    TEST_CHECK(std::abs(component.resistance - 2.0) < 1.0e-10);
+}
+
 void test_RemovalOptionsGroupImaginaryConjugates(void)
 {
     const RationalFunction rationalFunction(
@@ -463,7 +503,7 @@ void test_SynthesisLoopStopsOnQ(void)
 void test_SynthesisLoopStopsWithoutFosterDecomposition(void)
 {
     const RationalFunction rationalFunction(
-        Polynomial({-1.0}), Polynomial({1.0, 1.0}));
+        Polynomial({1.0, 1.0}), Polynomial({1.0, 1.0}));
     SynthesisState state(rationalFunction);
     std::istringstream input("0\n");
     std::ostringstream output;
@@ -694,6 +734,10 @@ TEST_LIST = {
         { "Foster extraction for real pole", test_FosterExtractionForRealPole },
         { "Foster extraction for imaginary pole pair",
             test_FosterExtractionForImaginaryPolePair },
+        { "Foster extraction for real pole RL",
+            test_FosterExtractionForRealPoleRL },
+        { "Foster extraction for endpoint terms",
+            test_FosterExtractionForEndpointTerms },
         { "Removal options group imaginary conjugates",
             test_RemovalOptionsGroupImaginaryConjugates },
         { "Removal options exclude unsupported roots",

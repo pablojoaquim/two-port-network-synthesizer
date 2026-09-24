@@ -14,10 +14,10 @@ Extract component data and the removed Foster term using the conventions defined
 
 ## Acceptance Criteria
 
-- [ ] Reference Foster examples produce the expected component values.
-- [ ] Real-pole extraction matches the documented RC/RL convention.
-- [ ] Conjugate-pair extraction produces one LC component.
-- [ ] Unsupported or invalid residues produce no component data.
+- [x] Reference Foster examples produce the expected component values.
+- [x] Real-pole extraction matches the documented RC/RL convention.
+- [x] Conjugate-pair extraction produces one LC component.
+- [x] Unsupported or invalid residues produce no component data.
 
 ## Tests
 

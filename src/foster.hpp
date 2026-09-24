@@ -6,7 +6,11 @@
 enum class FosterComponentType
 {
     ParallelRC,
-    ParallelLC
+    ParallelRL,
+    ParallelLC,
+    SeriesResistor,
+    SeriesCapacitor,
+    SeriesInductor
 };
 
 struct FosterComponent
