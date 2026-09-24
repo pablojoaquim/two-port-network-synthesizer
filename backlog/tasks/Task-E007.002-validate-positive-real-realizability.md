@@ -18,10 +18,10 @@ The current pole analysis exposes arbitrary roots, including right-half-plane an
 
 ## Acceptance Criteria
 
-- [ ] Realizable reference functions are accepted.
-- [ ] Non-realizable pole locations are rejected before synthesis.
-- [ ] Invalid repeated or non-positive-residue cases are rejected where required.
-- [ ] Validation failures do not start the interactive workflow.
+- [x] Realizable reference functions are accepted.
+- [x] Non-realizable pole locations are rejected before synthesis.
+- [x] Invalid repeated or non-positive-residue cases are rejected where required.
+- [x] Validation failures do not start the interactive workflow.
 
 ## Tests
 

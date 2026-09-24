@@ -44,6 +44,7 @@
 #include "polynomial.hpp"
 #include "pole_analysis.hpp"
 #include "rational_function.hpp"
+#include "realizability.hpp"
 #include "selection.hpp"
 #include "synthesis_state.hpp"
 #include "synthesis_controller.hpp"
@@ -603,6 +604,53 @@ void test_ApplicationRunnerRejectsMalformedVectorBeforeSynthesis(void)
                0U);
 }
 
+void test_FosterRealizabilityValidation(void)
+{
+    std::string errorMessage;
+    TEST_CHECK(validateFosterRealizability(
+        RationalFunction(Polynomial({1.0}), Polynomial({1.0, 1.0})),
+        errorMessage));
+    TEST_CHECK(validateFosterRealizability(
+        RationalFunction(Polynomial({1.0, 0.0}),
+                         Polynomial({1.0, 0.0, 1.0})),
+        errorMessage));
+
+    TEST_CHECK(!validateFosterRealizability(
+        RationalFunction(Polynomial({1.0}), Polynomial({1.0, -1.0})),
+        errorMessage));
+    TEST_CHECK(!validateFosterRealizability(
+        RationalFunction(Polynomial({1.0}),
+                         Polynomial({1.0, 2.0, 1.0})),
+        errorMessage));
+    TEST_CHECK(!validateFosterRealizability(
+        RationalFunction(Polynomial({1.0}),
+                         Polynomial({1.0, 1.0, 1.0})),
+        errorMessage));
+    TEST_CHECK(!validateFosterRealizability(
+        RationalFunction(Polynomial({-1.0, 0.0}),
+                         Polynomial({1.0, 0.0, 1.0})),
+        errorMessage));
+    TEST_CHECK(!validateFosterRealizability(
+        RationalFunction(Polynomial({1.0, 1.0}),
+                         Polynomial({1.0, 1.0})),
+        errorMessage));
+}
+
+void test_ApplicationRejectsUnrealizableInputBeforeInteraction(void)
+{
+    char argument0[] = "application";
+    char argument1[] = "[1]";
+    char argument2[] = "[1,-1]";
+    char *arguments[] = {argument0, argument1, argument2};
+    std::istringstream input("0\n");
+    std::ostringstream output;
+    std::ostringstream errors;
+
+    TEST_CHECK(runApplication(3, arguments, input, output, errors) == 1);
+    TEST_CHECK(output.str().empty());
+    TEST_CHECK(errors.str().find("right-half-plane") != std::string::npos);
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -659,5 +707,9 @@ TEST_LIST = {
             test_ApplicationRunnerRejectsInvalidInputBeforeSynthesis },
         { "Application runner rejects malformed vector",
             test_ApplicationRunnerRejectsMalformedVectorBeforeSynthesis },
+        { "Foster realizability validation",
+            test_FosterRealizabilityValidation },
+        { "Application rejects unrealizable input",
+            test_ApplicationRejectsUnrealizableInputBeforeInteraction },
     { NULL, NULL }
 };

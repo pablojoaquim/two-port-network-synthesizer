@@ -4,6 +4,7 @@
 
 #include "cli_parser.hpp"
 #include "polynomial.hpp"
+#include "realizability.hpp"
 #include "rational_function.hpp"
 #include "synthesis_controller.hpp"
 #include "synthesis_state.hpp"
@@ -22,6 +23,11 @@ int runApplication(int argc, char *argv[], std::istream &input,
     const RationalFunction rationalFunction(
         Polynomial(parsedInput.numerator),
         Polynomial(parsedInput.denominator));
+    if (!validateFosterRealizability(rationalFunction, errorMessage))
+    {
+        errors << "Error: " << errorMessage << '\n';
+        return 1;
+    }
     SynthesisState state(rationalFunction);
     runSynthesis(input, output, state);
     return 0;
