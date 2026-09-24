@@ -78,7 +78,7 @@ bool belongsToGroup(const std::complex<double> &value,
 }
 }
 
-std::vector<RemovalOption> identifyRemovalOptions(
+std::vector<RemovalOption> identifyDenominatorPoles(
     const RationalFunction &rationalFunction)
 {
     const std::vector<double> coefficients =
@@ -116,15 +116,101 @@ std::vector<RemovalOption> identifyRemovalOptions(
             if (belongsToGroup(root, option.pole))
             {
                 ++option.multiplicity;
+                option.poleGroup.push_back(root);
                 added = true;
                 break;
             }
         }
         if (!added)
         {
-            options.push_back(
-                {options.size(), root, 1U});
+            options.push_back({options.size(), root, 1U, {root}});
         }
+    }
+    return options;
+}
+
+std::vector<RemovalOption> identifyRemovalOptions(
+    const RationalFunction &rationalFunction)
+{
+    const std::vector<RemovalOption> denominatorPoles =
+        identifyDenominatorPoles(rationalFunction);
+    std::vector<std::complex<double>> roots;
+    for (const RemovalOption &pole : denominatorPoles)
+    {
+        roots.insert(roots.end(), pole.poleGroup.begin(), pole.poleGroup.end());
+    }
+    std::sort(roots.begin(), roots.end(), comesBefore);
+
+    std::vector<RemovalOption> options;
+    std::vector<bool> used(roots.size(), false);
+    for (std::size_t rootIndex = 0U; rootIndex < roots.size(); ++rootIndex)
+    {
+        if (used[rootIndex])
+        {
+            continue;
+        }
+        const std::complex<double> root = roots[rootIndex];
+        if (root.real() > kRepeatedRootTolerance ||
+            (std::abs(root.real()) > kRepeatedRootTolerance &&
+             std::abs(root.imag()) > kRepeatedRootTolerance))
+        {
+            used[rootIndex] = true;
+            continue;
+        }
+
+        if (std::abs(root.imag()) <= kRepeatedRootTolerance)
+        {
+            RemovalOption option = {options.size(), root, 1U, {root}};
+            used[rootIndex] = true;
+            for (std::size_t other = rootIndex + 1U; other < roots.size();
+                 ++other)
+            {
+                if (!used[other] && belongsToGroup(roots[other], root))
+                {
+                    ++option.multiplicity;
+                    option.poleGroup.push_back(roots[other]);
+                    used[other] = true;
+                }
+            }
+            options.push_back(option);
+            continue;
+        }
+
+        if (root.imag() < 0.0)
+        {
+            continue;
+        }
+
+        RemovalOption option = {options.size(), root, 1U, {root}};
+        used[rootIndex] = true;
+        std::size_t conjugateCount = 0U;
+        for (std::size_t other = 0U; other < roots.size(); ++other)
+        {
+            if (!used[other] && belongsToGroup(roots[other], std::conj(root)))
+            {
+                option.poleGroup.push_back(roots[other]);
+                used[other] = true;
+                ++conjugateCount;
+            }
+        }
+        for (std::size_t other = rootIndex + 1U; other < roots.size(); ++other)
+        {
+            if (!used[other] && belongsToGroup(roots[other], root))
+            {
+                option.poleGroup.push_back(roots[other]);
+                used[other] = true;
+                ++option.multiplicity;
+            }
+        }
+        if (conjugateCount == option.multiplicity)
+        {
+            options.push_back(option);
+        }
+    }
+
+    for (std::size_t index = 0U; index < options.size(); ++index)
+    {
+        options[index].index = index;
     }
 
     return options;

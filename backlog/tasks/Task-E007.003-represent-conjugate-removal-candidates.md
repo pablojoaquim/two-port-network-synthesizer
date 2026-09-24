@@ -18,10 +18,10 @@ An LC Foster term at $\pm j\omega$ is associated with a conjugate pole pair and 
 
 ## Acceptance Criteria
 
-- [ ] A conjugate pole pair produces one removal option.
-- [ ] A real simple pole produces one removal option.
-- [ ] Group multiplicity and frequency data are preserved.
-- [ ] Unsupported roots are not selectable.
+- [x] A conjugate pole pair produces one removal option.
+- [x] A real simple pole produces one removal option.
+- [x] Group multiplicity and frequency data are preserved.
+- [x] Unsupported roots are not selectable.
 
 ## Tests
 

@@ -22,8 +22,8 @@ bool validateTotalRemoval(const RationalFunction &rationalFunction,
         identifyRemovalOptions(rationalFunction);
     for (const RemovalOption &option : options)
     {
-        if (option.index == candidate.index &&
-            sameFrequency(option.pole, candidate.pole))
+        if (sameFrequency(option.pole, candidate.pole) &&
+            option.poleGroup.size() == candidate.poleGroup.size())
         {
             return option.multiplicity == 1U;
         }

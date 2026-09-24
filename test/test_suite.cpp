@@ -213,15 +213,15 @@ void test_PoleAnalysisWithNoPoles(void)
 void test_PoleAnalysisWithRealPoles(void)
 {
     const RationalFunction rationalFunction(Polynomial({1.0}),
-                                                  Polynomial({1.0, -3.0, 2.0}));
+                                                  Polynomial({1.0, 3.0, 2.0}));
     const std::vector<RemovalOption> options =
         identifyRemovalOptions(rationalFunction);
 
     TEST_CHECK(options.size() == 2U);
     TEST_CHECK(options[0].index == 0U);
     TEST_CHECK(options[1].index == 1U);
-    TEST_CHECK(std::abs(options[0].pole.real() - 1.0) < 1.0e-10);
-    TEST_CHECK(std::abs(options[1].pole.real() - 2.0) < 1.0e-10);
+    TEST_CHECK(std::abs(options[0].pole.real() + 2.0) < 1.0e-10);
+    TEST_CHECK(std::abs(options[1].pole.real() + 1.0) < 1.0e-10);
     TEST_CHECK(options[0].multiplicity == 1U);
     TEST_CHECK(options[1].multiplicity == 1U);
 }
@@ -229,17 +229,14 @@ void test_PoleAnalysisWithRealPoles(void)
 void test_PoleAnalysisWithComplexAndRepeatedPoles(void)
 {
     const RationalFunction rationalFunction(
-        Polynomial({1.0}), Polynomial({1.0, -2.0, 2.0}));
+        Polynomial({1.0}), Polynomial({1.0, 2.0, 2.0}));
     const std::vector<RemovalOption> complexOptions =
         identifyRemovalOptions(rationalFunction);
 
-    TEST_CHECK(complexOptions.size() == 2U);
-    TEST_CHECK(std::abs(complexOptions[0].pole.real() - 1.0) < 1.0e-10);
-    TEST_CHECK(std::abs(std::abs(complexOptions[0].pole.imag()) - 1.0) <
-               1.0e-10);
+    TEST_CHECK(complexOptions.empty());
 
     const RationalFunction repeatedFunction(
-        Polynomial({1.0}), Polynomial({1.0, -2.0, 1.0}));
+        Polynomial({1.0}), Polynomial({1.0, 2.0, 1.0}));
     const std::vector<RemovalOption> repeatedOptions =
         identifyRemovalOptions(repeatedFunction);
 
@@ -250,19 +247,19 @@ void test_PoleAnalysisWithComplexAndRepeatedPoles(void)
 void test_TotalRemovalValidation(void)
 {
     const RationalFunction rationalFunction(
-        Polynomial({1.0}), Polynomial({1.0, -3.0, 2.0}));
+        Polynomial({1.0}), Polynomial({1.0, 3.0, 2.0}));
     const std::vector<RemovalOption> options =
         identifyRemovalOptions(rationalFunction);
 
     TEST_CHECK(validateTotalRemoval(rationalFunction, options[0]));
 
     const RationalFunction repeatedFunction(
-        Polynomial({1.0}), Polynomial({1.0, -2.0, 1.0}));
+        Polynomial({1.0}), Polynomial({1.0, 2.0, 1.0}));
     const RemovalOption repeatedOption =
         identifyRemovalOptions(repeatedFunction)[0];
     TEST_CHECK(!validateTotalRemoval(repeatedFunction, repeatedOption));
     TEST_CHECK(repeatedFunction.denominator().coefficients() ==
-               std::vector<double>({1.0, -2.0, 1.0}));
+               std::vector<double>({1.0, 2.0, 1.0}));
 }
 
 void test_FosterExtractionForRealPole(void)
@@ -291,11 +288,33 @@ void test_FosterExtractionForImaginaryPolePair(void)
     TEST_CHECK(std::abs(component.inductance - 1.0) < 1.0e-10);
 }
 
+void test_RemovalOptionsGroupImaginaryConjugates(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0, 0.0}), Polynomial({1.0, 0.0, 1.0}));
+    const std::vector<RemovalOption> options =
+        identifyRemovalOptions(rationalFunction);
+
+    TEST_CHECK(options.size() == 1U);
+    TEST_CHECK(options[0].index == 0U);
+    TEST_CHECK(options[0].multiplicity == 1U);
+    TEST_CHECK(options[0].poleGroup.size() == 2U);
+    TEST_CHECK(std::abs(options[0].pole.imag() - 1.0) < 1.0e-10);
+}
+
+void test_RemovalOptionsExcludeUnsupportedRoots(void)
+{
+    TEST_CHECK(identifyRemovalOptions(RationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, -1.0}))).empty());
+    TEST_CHECK(identifyRemovalOptions(RationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, 1.0, 1.0}))).empty());
+}
+
 void test_FosterExtractionRejectsUnsupportedPole(void)
 {
     const RationalFunction rationalFunction(
         Polynomial({1.0}), Polynomial({1.0, 1.0, 1.0}));
-    const RemovalOption option = identifyRemovalOptions(rationalFunction)[0];
+    const RemovalOption option = identifyDenominatorPoles(rationalFunction)[0];
     FosterComponent component;
 
     TEST_CHECK(!extractFosterComponent(rationalFunction, option, component));
@@ -444,7 +463,7 @@ void test_SynthesisLoopStopsOnQ(void)
 void test_SynthesisLoopStopsWithoutFosterDecomposition(void)
 {
     const RationalFunction rationalFunction(
-        Polynomial({1.0}), Polynomial({1.0, 1.0, 1.0}));
+        Polynomial({-1.0}), Polynomial({1.0, 1.0}));
     SynthesisState state(rationalFunction);
     std::istringstream input("0\n");
     std::ostringstream output;
@@ -511,7 +530,8 @@ void test_AsciiCircuitRendersIntermediateAndFinalBranches(void)
                                 10.0, 0.10, 0.0};
     const FosterComponent lc = {FosterComponentType::ParallelLC,
                                 0.0, 1.0, 1.0};
-    const RemovalOption removal = {0U, std::complex<double>(-1.0, 0.0), 1U};
+    const RemovalOption removal = {0U, std::complex<double>(-1.0, 0.0),
+                                   1U, {std::complex<double>(-1.0, 0.0)}};
     const std::vector<SynthesisStep> intermediate = {{removal, rc}};
     const std::vector<SynthesisStep> final = {{removal, rc}, {removal, lc}};
 
@@ -674,6 +694,10 @@ TEST_LIST = {
         { "Foster extraction for real pole", test_FosterExtractionForRealPole },
         { "Foster extraction for imaginary pole pair",
             test_FosterExtractionForImaginaryPolePair },
+        { "Removal options group imaginary conjugates",
+            test_RemovalOptionsGroupImaginaryConjugates },
+        { "Removal options exclude unsupported roots",
+            test_RemovalOptionsExcludeUnsupportedRoots },
         { "Foster extraction rejects unsupported pole",
             test_FosterExtractionRejectsUnsupportedPole },
         { "Synthesis state initial state", test_SynthesisStateInitialState },

@@ -144,7 +144,7 @@ bool validateFosterRealizability(const RationalFunction &rationalFunction,
 {
     errorMessage.clear();
     const std::vector<RemovalOption> poles =
-        identifyRemovalOptions(rationalFunction);
+        identifyDenominatorPoles(rationalFunction);
     for (const RemovalOption &pole : poles)
     {
         if (pole.multiplicity != 1U)
