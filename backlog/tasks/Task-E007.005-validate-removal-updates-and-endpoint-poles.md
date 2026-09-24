@@ -14,10 +14,10 @@ Ensure each selected Foster removal produces a valid remaining rational function
 
 ## Acceptance Criteria
 
-- [ ] Valid removal updates preserve the rational-function identity.
-- [ ] The selected pole or pole group is absent from the remaining function.
-- [ ] Invalid updates are rejected without state mutation.
-- [ ] Endpoint removal behavior matches the documented convention.
+- [x] Valid removal updates preserve the rational-function identity.
+- [x] The selected pole or pole group is absent from the remaining function.
+- [x] Invalid updates are rejected without state mutation.
+- [x] Endpoint removal behavior matches the documented convention.
 
 ## Tests
 

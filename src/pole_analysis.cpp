@@ -142,6 +142,26 @@ std::vector<RemovalOption> identifyRemovalOptions(
     std::sort(roots.begin(), roots.end(), comesBefore);
 
     std::vector<RemovalOption> options;
+    const std::size_t numeratorDegree =
+        rationalFunction.numerator().coefficients().size() - 1U;
+    const std::size_t denominatorDegree =
+        rationalFunction.denominator().coefficients().size() - 1U;
+    if (numeratorDegree == denominatorDegree + 1U)
+    {
+        options.push_back({options.size(), {}, 1U, {},
+                           RemovalLocation::Infinity});
+    }
+    else if (numeratorDegree == denominatorDegree)
+    {
+        const double resistance =
+            rationalFunction.numerator().coefficients().front() /
+            rationalFunction.denominator().coefficients().front();
+        if (resistance > kResidualTolerance)
+        {
+            options.push_back({options.size(), {}, 1U, {},
+                               RemovalLocation::Constant});
+        }
+    }
     std::vector<bool> used(roots.size(), false);
     for (std::size_t rootIndex = 0U; rootIndex < roots.size(); ++rootIndex)
     {

@@ -207,7 +207,7 @@ void test_PoleAnalysisWithNoPoles(void)
     const RationalFunction rationalFunction(Polynomial({1.0}),
                                                   Polynomial({2.0}));
 
-    TEST_CHECK(identifyRemovalOptions(rationalFunction).empty());
+    TEST_CHECK(identifyDenominatorPoles(rationalFunction).empty());
 }
 
 void test_PoleAnalysisWithRealPoles(void)
@@ -262,6 +262,61 @@ void test_TotalRemovalValidation(void)
                std::vector<double>({1.0, 2.0, 1.0}));
 }
 
+void test_TotalRemovalAppliesFiniteTermAndPreservesFailureState(void)
+{
+    const RationalFunction rationalFunction(
+        Polynomial({1.0}), Polynomial({1.0, 1.0}));
+    const RemovalOption option = identifyRemovalOptions(rationalFunction)[0];
+    FosterComponent component;
+    TEST_CHECK(extractFosterComponent(rationalFunction, option, component));
+    RationalFunction remaining = rationalFunction;
+
+    TEST_CHECK(applyTotalRemoval(rationalFunction, option, component,
+                                 remaining));
+    TEST_CHECK(remaining.numerator().coefficients() ==
+               std::vector<double>({0.0}));
+    TEST_CHECK(remaining.denominator().coefficients() ==
+               std::vector<double>({1.0}));
+
+    RationalFunction unchanged = rationalFunction;
+    const FosterComponent invalid = {FosterComponentType::ParallelRC,
+                                     2.0, 2.0, 0.0};
+    TEST_CHECK(!applyTotalRemoval(rationalFunction, option, invalid,
+                                  unchanged));
+    TEST_CHECK(unchanged.numerator().coefficients() ==
+               rationalFunction.numerator().coefficients());
+    TEST_CHECK(unchanged.denominator().coefficients() ==
+               rationalFunction.denominator().coefficients());
+}
+
+void test_TotalRemovalAppliesEndpointTerms(void)
+{
+    const RationalFunction impedance(
+        Polynomial({3.0, 2.0}), Polynomial({1.0}));
+    const RemovalOption infinity = identifyRemovalOptions(impedance)[0];
+    FosterComponent component;
+    TEST_CHECK(extractFosterComponent(impedance, infinity, component));
+    RationalFunction remaining = impedance;
+    TEST_CHECK(applyTotalRemoval(impedance, infinity, component, remaining));
+    TEST_CHECK(remaining.numerator().coefficients() ==
+               std::vector<double>({2.0}));
+
+    const RemovalOption constant = identifyRemovalOptions(remaining)[0];
+    TEST_CHECK(extractFosterComponent(remaining, constant, component));
+    TEST_CHECK(applyTotalRemoval(remaining, constant, component, remaining));
+    TEST_CHECK(remaining.numerator().coefficients() ==
+               std::vector<double>({0.0}));
+
+    const RationalFunction capacitor(
+        Polynomial({2.0}), Polynomial({1.0, 0.0}));
+    const RemovalOption zeroPole = identifyRemovalOptions(capacitor)[0];
+    TEST_CHECK(extractFosterComponent(capacitor, zeroPole, component));
+    remaining = capacitor;
+    TEST_CHECK(applyTotalRemoval(capacitor, zeroPole, component, remaining));
+    TEST_CHECK(remaining.denominator().coefficients() ==
+               std::vector<double>({1.0}));
+}
+
 void test_FosterExtractionForRealPole(void)
 {
     const RationalFunction rationalFunction(
@@ -292,7 +347,7 @@ void test_FosterExtractionForRealPoleRL(void)
 {
     const RationalFunction rationalFunction(
         Polynomial({1.0, 0.0}), Polynomial({1.0, 1.0}));
-    const RemovalOption option = identifyRemovalOptions(rationalFunction)[0];
+    const RemovalOption option = identifyRemovalOptions(rationalFunction)[1];
     FosterComponent component;
 
     TEST_CHECK(extractFosterComponent(rationalFunction, option, component));
@@ -505,7 +560,7 @@ void test_SynthesisLoopStopsWithoutFosterDecomposition(void)
     const RationalFunction rationalFunction(
         Polynomial({1.0, 1.0}), Polynomial({1.0, 1.0}));
     SynthesisState state(rationalFunction);
-    std::istringstream input("0\n");
+    std::istringstream input("1\n");
     std::ostringstream output;
 
     TEST_CHECK(runSynthesis(input, output, state) ==
@@ -731,6 +786,10 @@ TEST_LIST = {
         { "Pole analysis with complex and repeated poles",
             test_PoleAnalysisWithComplexAndRepeatedPoles },
     { "Total removal validation", test_TotalRemovalValidation },
+        { "Total removal applies finite term",
+            test_TotalRemovalAppliesFiniteTermAndPreservesFailureState },
+        { "Total removal applies endpoint terms",
+            test_TotalRemovalAppliesEndpointTerms },
         { "Foster extraction for real pole", test_FosterExtractionForRealPole },
         { "Foster extraction for imaginary pole pair",
             test_FosterExtractionForImaginaryPolePair },
