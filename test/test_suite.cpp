@@ -347,7 +347,7 @@ void test_FosterExtractionForRealPoleRL(void)
 {
     const RationalFunction rationalFunction(
         Polynomial({1.0, 0.0}), Polynomial({1.0, 1.0}));
-    const RemovalOption option = identifyRemovalOptions(rationalFunction)[1];
+    const RemovalOption option = identifyRemovalOptions(rationalFunction)[0];
     FosterComponent component;
 
     TEST_CHECK(extractFosterComponent(rationalFunction, option, component));
@@ -766,6 +766,48 @@ void test_ApplicationRejectsUnrealizableInputBeforeInteraction(void)
     TEST_CHECK(errors.str().find("right-half-plane") != std::string::npos);
 }
 
+void test_ReferenceFosterWorkflows(void)
+{
+    char argument0[] = "application";
+    std::ostringstream errors;
+
+    char lcNumerator[] = "[1,0]";
+    char lcDenominator[] = "[1,0,1]";
+    char *lcArguments[] = {argument0, lcNumerator, lcDenominator};
+    std::istringstream lcInput("0\n");
+    std::ostringstream lcOutput;
+    TEST_CHECK(runApplication(3, lcArguments, lcInput, lcOutput, errors) == 0);
+    TEST_CHECK(lcOutput.str().find("LC1: L=1.00 H, C=1.00 F") !=
+               std::string::npos);
+    TEST_CHECK(lcOutput.str().find("SYNTHESIS COMPLETE") != std::string::npos);
+
+    char rlNumerator[] = "[1,0]";
+    char rlDenominator[] = "[1,1]";
+    char *rlArguments[] = {argument0, rlNumerator, rlDenominator};
+    std::istringstream rlInput("0\n");
+    std::ostringstream rlOutput;
+    TEST_CHECK(runApplication(3, rlArguments, rlInput, rlOutput, errors) == 0);
+    TEST_CHECK(rlOutput.str().find("RL1: R=1.00 ohm, L=1.00 H") !=
+               std::string::npos);
+    TEST_CHECK(rlOutput.str().find("SYNTHESIS COMPLETE") != std::string::npos);
+
+    char endpointNumerator[] = "[3,2]";
+    char endpointDenominator[] = "[1]";
+    char *endpointArguments[] = {argument0, endpointNumerator,
+                                 endpointDenominator};
+    std::istringstream endpointInput("0\n0\n");
+    std::ostringstream endpointOutput;
+    TEST_CHECK(runApplication(3, endpointArguments, endpointInput,
+                              endpointOutput, errors) == 0);
+    TEST_CHECK(endpointOutput.str().find("L1: L=3.00 H") !=
+               std::string::npos);
+    TEST_CHECK(endpointOutput.str().find("R1: R=2.00 ohm") !=
+               std::string::npos);
+    TEST_CHECK(endpointOutput.str().find("SYNTHESIS COMPLETE") !=
+               std::string::npos);
+    TEST_CHECK(errors.str().empty());
+}
+
 /*===========================================================================*
  * Test list
  *===========================================================================*/
@@ -838,5 +880,6 @@ TEST_LIST = {
             test_FosterRealizabilityValidation },
         { "Application rejects unrealizable input",
             test_ApplicationRejectsUnrealizableInputBeforeInteraction },
+        { "Reference Foster workflows", test_ReferenceFosterWorkflows },
     { NULL, NULL }
 };

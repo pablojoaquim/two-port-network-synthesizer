@@ -4,6 +4,8 @@
 #include <complex>
 #include <vector>
 
+#include "realizability.hpp"
+
 namespace
 {
 constexpr double kFrequencyTolerance = 1.0e-8;
@@ -240,6 +242,11 @@ bool applyTotalRemoval(const RationalFunction &rationalFunction,
 
     const RationalFunction candidateRemaining{
         Polynomial(remainingNumerator), Polynomial(remainingDenominator)};
+    std::string realizabilityError;
+    if (!validateFosterRealizability(candidateRemaining, realizabilityError))
+    {
+        return false;
+    }
     if (candidate.location == RemovalLocation::FinitePole)
     {
         const std::vector<RemovalOption> remainingPoles =

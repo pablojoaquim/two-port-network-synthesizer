@@ -43,6 +43,34 @@ bool finitePositive(double value)
 {
     return std::isfinite(value) && value > 0.0;
 }
+
+double residualSeriesResistance(const RationalFunction &rationalFunction)
+{
+    const std::vector<double> &numerator =
+        rationalFunction.numerator().coefficients();
+    const std::vector<double> &denominator =
+        rationalFunction.denominator().coefficients();
+    double resistance = numerator.front() / denominator.front();
+    const std::vector<RemovalOption> poles =
+        identifyDenominatorPoles(rationalFunction);
+    for (const RemovalOption &pole : poles)
+    {
+        if (pole.multiplicity != 1U ||
+            std::abs(pole.pole.imag()) > kAxisTolerance ||
+            pole.pole.real() >= -kAxisTolerance)
+        {
+            continue;
+        }
+        const std::complex<double> residue =
+            evaluate(rationalFunction.numerator(), pole.pole) /
+            derivativeAt(rationalFunction.denominator(), pole.pole);
+        if (residue.real() < 0.0 && std::abs(residue.imag()) <= kAxisTolerance)
+        {
+            resistance -= -residue.real() / -pole.pole.real();
+        }
+    }
+    return resistance;
+}
 }
 
 bool extractFosterComponent(const RationalFunction &rationalFunction,
@@ -74,7 +102,7 @@ bool extractFosterComponent(const RationalFunction &rationalFunction,
         {
             return false;
         }
-        const double resistance = numerator.front() / denominator.front();
+        const double resistance = residualSeriesResistance(rationalFunction);
         if (!std::isfinite(resistance) || resistance < 0.0)
         {
             return false;

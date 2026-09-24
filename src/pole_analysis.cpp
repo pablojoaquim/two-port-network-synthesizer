@@ -76,6 +76,64 @@ bool belongsToGroup(const std::complex<double> &value,
     return std::abs(value - representative) <=
            kRepeatedRootTolerance * scale;
 }
+
+std::complex<double> evaluateDescending(
+    const std::vector<double> &coefficients,
+    const std::complex<double> &value)
+{
+    std::complex<double> result(0.0, 0.0);
+    for (const double coefficient : coefficients)
+    {
+        result = result * value + coefficient;
+    }
+    return result;
+}
+
+std::complex<double> derivativeDescending(
+    const std::vector<double> &coefficients,
+    const std::complex<double> &value)
+{
+    std::complex<double> result(0.0, 0.0);
+    const std::size_t degree = coefficients.size() - 1U;
+    for (std::size_t index = 0U; index < degree; ++index)
+    {
+        result = result * value +
+                 static_cast<double>(degree - index) * coefficients[index];
+    }
+    return result;
+}
+
+double residualSeriesResistance(const RationalFunction &rationalFunction,
+                                const std::vector<RemovalOption> &poles)
+{
+    const std::vector<double> &numerator =
+        rationalFunction.numerator().coefficients();
+    const std::vector<double> &denominator =
+        rationalFunction.denominator().coefficients();
+    if (numerator.size() != denominator.size())
+    {
+        return 0.0;
+    }
+    double resistance = numerator.front() / denominator.front();
+    for (const RemovalOption &pole : poles)
+    {
+        if (pole.multiplicity != 1U ||
+            std::abs(pole.pole.imag()) > kRepeatedRootTolerance ||
+            pole.pole.real() >= -kRepeatedRootTolerance)
+        {
+            continue;
+        }
+        const std::complex<double> residue =
+            evaluateDescending(numerator, pole.pole) /
+            derivativeDescending(denominator, pole.pole);
+        if (residue.real() < -kResidualTolerance &&
+            std::abs(residue.imag()) <= kRepeatedRootTolerance)
+        {
+            resistance -= -residue.real() / -pole.pole.real();
+        }
+    }
+    return resistance;
+}
 }
 
 std::vector<RemovalOption> identifyDenominatorPoles(
@@ -153,9 +211,8 @@ std::vector<RemovalOption> identifyRemovalOptions(
     }
     else if (numeratorDegree == denominatorDegree)
     {
-        const double resistance =
-            rationalFunction.numerator().coefficients().front() /
-            rationalFunction.denominator().coefficients().front();
+        const double resistance = residualSeriesResistance(
+            rationalFunction, denominatorPoles);
         if (resistance > kResidualTolerance)
         {
             options.push_back({options.size(), {}, 1U, {},

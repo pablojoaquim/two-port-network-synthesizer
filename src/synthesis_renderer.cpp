@@ -42,11 +42,32 @@ void renderComponent(std::ostream &output, const FosterComponent &component)
                << component.resistance << " ohm, C=" << component.capacitance
                << " F)";
     }
-    else
+    else if (component.type == FosterComponentType::ParallelRL)
+    {
+        output << "parallel RL (R=" << std::fixed << std::setprecision(2)
+               << component.resistance << " ohm, L=" << component.inductance
+               << " H)";
+    }
+    else if (component.type == FosterComponentType::ParallelLC)
     {
         output << "parallel LC (L=" << std::fixed << std::setprecision(2)
                << component.inductance << " H, C=" << component.capacitance
                << " F)";
+    }
+    else if (component.type == FosterComponentType::SeriesResistor)
+    {
+        output << "series resistor (R=" << std::fixed << std::setprecision(2)
+               << component.resistance << " ohm)";
+    }
+    else if (component.type == FosterComponentType::SeriesCapacitor)
+    {
+        output << "series capacitor (C=" << std::fixed << std::setprecision(2)
+               << component.capacitance << " F)";
+    }
+    else
+    {
+        output << "series inductor (L=" << std::fixed << std::setprecision(2)
+               << component.inductance << " H)";
     }
 }
 }
@@ -66,14 +87,26 @@ void renderSynthesisInformation(std::ostream &output,
     output << "Available removals:\n";
     for (const RemovalOption &option : options)
     {
-        output << option.index << ": " << std::fixed << std::setprecision(2)
-               << option.pole.real();
-        if (std::abs(option.pole.imag()) > 1.0e-8)
+        output << option.index << ": ";
+        if (option.location == RemovalLocation::Infinity)
         {
-            output << (option.pole.imag() >= 0.0 ? " + j" : " - j")
-                   << std::abs(option.pole.imag());
+            output << "pole at infinity";
         }
-        output << " (multiplicity " << option.multiplicity << ")\n";
+        else if (option.location == RemovalLocation::Constant)
+        {
+            output << "constant resistance";
+        }
+        else
+        {
+            output << std::fixed << std::setprecision(2) << option.pole.real();
+            if (std::abs(option.pole.imag()) > 1.0e-8)
+            {
+                output << (option.pole.imag() >= 0.0 ? " + j" : " - j")
+                       << std::abs(option.pole.imag());
+            }
+            output << " (multiplicity " << option.multiplicity << ")";
+        }
+        output << "\n";
     }
 
     output << "Removal sequence:\n";
@@ -84,12 +117,24 @@ void renderSynthesisInformation(std::ostream &output,
     for (std::size_t index = 0U; index < state.steps().size(); ++index)
     {
         const SynthesisStep &step = state.steps()[index];
-        output << index << ": pole " << std::fixed << std::setprecision(2)
-               << step.removal.pole.real();
-        if (std::abs(step.removal.pole.imag()) > 1.0e-8)
+        output << index << ": ";
+        if (step.removal.location == RemovalLocation::Infinity)
         {
-            output << (step.removal.pole.imag() >= 0.0 ? " + j" : " - j")
-                   << std::abs(step.removal.pole.imag());
+            output << "pole at infinity";
+        }
+        else if (step.removal.location == RemovalLocation::Constant)
+        {
+            output << "constant resistance";
+        }
+        else
+        {
+            output << "pole " << std::fixed << std::setprecision(2)
+                   << step.removal.pole.real();
+            if (std::abs(step.removal.pole.imag()) > 1.0e-8)
+            {
+                output << (step.removal.pole.imag() >= 0.0 ? " + j" : " - j")
+                       << std::abs(step.removal.pole.imag());
+            }
         }
         output << ", ";
         renderComponent(output, step.component);

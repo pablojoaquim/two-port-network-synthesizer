@@ -15,11 +15,11 @@ Verify the corrected synthesis workflow against representative reference cases.
 
 ## Acceptance Criteria
 
-- [ ] Reference-based mathematical cases pass with expected values.
-- [ ] Invalid cases stop before interactive selection.
-- [ ] Complete and `q` partial workflows remain distinguishable.
-- [ ] Rendered output reflects the physical component groups.
-- [ ] The full WSL Makefile build and test path passes.
+- [x] Reference-based mathematical cases pass with expected values.
+- [x] Invalid cases stop before interactive selection.
+- [x] Complete and `q` partial workflows remain distinguishable.
+- [x] Rendered output reflects the physical component groups.
+- [x] The full WSL Makefile build and test path passes.
 
 ## Tests
 
