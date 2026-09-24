@@ -2,7 +2,7 @@
 
 A command-line tool for the step-by-step synthesis of linear time-invariant (LTI) two-port networks.
 
-The system takes an LTI network impedance as a rational function and interactively performs a sequence of total removals until the final circuit is obtained.
+The system takes a one-port LTI network impedance as a rational function and interactively performs a sequence of Foster-I removals until the final circuit is obtained. Terminated two-port synthesis is outside the current scope.
 
 The synthesis process is presented graphically in the terminal using ASCII diagrams.
 
@@ -66,7 +66,8 @@ At each stage, the tool:
 7. Displays the resulting synthesis step graphically.
 8. Continues until the network is completely synthesized.
 
-The rational function always represents impedance. A total removal at a selected
+The rational function always represents impedance; admittance synthesis is not
+supported. A total removal at a selected
 frequency is valid only when the remaining impedance has no pole at that
 frequency. Foster extraction supports real negative poles and conjugate pole
 pairs on the $j\omega$ axis. For a real pole $p=-a$ with residue $K$, the
@@ -83,8 +84,24 @@ $$
 C = \frac{1}{K}, \qquad L = \frac{K}{\omega_0^2}
 $$
 
-Only decompositions with finite positive component values are available for
-removal.
+For a real pole $p=-a$, a positive residue $K$ produces the RC term above. A
+negative residue $-Ka$ produces the Foster term $Ks/(s+a)$ and represents a
+parallel RL branch:
+
+$$
+R = K, \qquad L = \frac{K}{a}
+$$
+
+Foster-I endpoint terms are also supported: $K_0/s$ is a series capacitor with
+$C=1/K_0$, $K_\infty s$ is a series inductor with $L=K_\infty$, and a
+non-negative constant term is a series resistor. The complete realization is
+the series sum of these terms and the finite RC, RL, and LC branches.
+
+Only decompositions with finite positive reactive component values and
+non-negative resistance are available for removal. Common numerator and
+denominator factors are not canceled before analysis; every denominator root
+remains a pole candidate, and a canceled or zero-residue candidate makes the
+input unsupported.
 
 The user therefore controls the synthesis path interactively.
 

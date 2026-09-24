@@ -19,10 +19,10 @@ The reference distinguishes one-port impedance/admittance Foster synthesis from 
 
 ## Acceptance Criteria
 
-- [ ] The supported network scope is explicitly documented.
-- [ ] Foster form, immittance, component, and endpoint conventions are documented.
-- [ ] RC residue formulas are internally consistent with the selected circuit topology.
-- [ ] Cancellation and unsupported-input behavior are explicitly defined.
+- [x] The supported network scope is explicitly documented.
+- [x] Foster form, immittance, component, and endpoint conventions are documented.
+- [x] RC residue formulas are internally consistent with the selected circuit topology.
+- [x] Cancellation and unsupported-input behavior are explicitly defined.
 
 ## Tests
 

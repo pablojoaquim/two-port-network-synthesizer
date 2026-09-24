@@ -2,11 +2,11 @@
 
 ## 1. Purpose
 
-Define the minimal design for a command-line tool that interactively synthesizes an LTI two-port network from a rational function.
+Define the minimal design for a command-line tool that interactively synthesizes a one-port LTI impedance from a rational function using Foster-I synthesis.
 
 ## 2. Scope
 
-The system accepts numerator and denominator polynomial coefficients, analyzes the resulting rational function, and performs successive total removals until no poles remain or the user enters `q`.
+The system accepts numerator and denominator polynomial coefficients, analyzes the resulting one-port impedance, and performs successive Foster-I total removals until no terms remain or the user enters `q`. Admittance and terminated two-port synthesis are outside the current scope.
 
 The system displays each synthesis step and the resulting circuit in the terminal using ASCII diagrams. The final output includes the synthesized circuit, component values, and removal sequence accumulated during the session.
 
@@ -138,6 +138,8 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 
 - The input consists of numerator and denominator coefficient vectors.
 - The rational function always represents impedance.
+- The supported realization is Foster-I one-port impedance synthesis. Foster-II
+	admittance and terminated two-port synthesis are unsupported.
 - Coefficients are specified in descending powers of `s`.
 - Calculations use floating-point values with two decimal places sufficient for precision and display.
 - Coefficients must be finite floating-point values. `NaN`, positive infinity, and negative infinity are invalid input.
@@ -146,6 +148,8 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 - A total removal is valid only when the remaining impedance has no pole at the
 	selected frequency; the selected pole must therefore be fully removed.
 - A denominator root is treated as a pole unless cancellation behavior is explicitly defined.
+- Common numerator and denominator factors are not canceled. A denominator root
+	with zero residue is therefore unsupported rather than silently removed.
 - Foster impedance extraction supports real negative poles and conjugate pole
 	pairs on the $j\omega$ axis. A real pole $p=-a$ with residue $K$ contributes
 	$K/(s+a)$ and is represented by a parallel RC branch with
@@ -154,6 +158,15 @@ The analysis-render-selection-update sequence repeats until no poles remain or t
 	$C=1/K$ and $L=K/\omega_0^2$.
 - Component values must be finite and positive; unsupported pole locations or
 	non-positive residues have no valid Foster decomposition.
+- A finite real pole $p=-a$ with positive residue $K$ is a parallel RC term
+	$K/(s+a)$ with $C=1/K$ and $R=K/a$. A negative residue $-Ka$ is a parallel
+	RL term $Ks/(s+a)$ with $R=K$ and $L=K/a$.
+- A pole at zero contributes a series capacitor term $K_0/s$ with $C=1/K_0$.
+	A pole at infinity contributes a series inductor term $K_\infty s$ with
+	$L=K_\infty$. A non-negative constant polynomial term is a series resistor.
+- The Foster-I impedance is the series sum of endpoint terms, finite parallel
+	RC/RL branches, and finite parallel LC branches. Reactive values must be
+	finite and positive; resistance values must be finite and non-negative.
 - Invalid interactive selections produce an error message and reprompt without changing the synthesis state.
 - The application is terminal-based and uses ASCII diagrams.
 - Intermediate and final circuit diagrams use consistent ASCII labels for components, terminals, connections, and ground.
